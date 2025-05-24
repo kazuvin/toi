@@ -7,6 +7,9 @@ import textToSpeech from "./text-to-speech";
 import recommend from "./recommend";
 import feedback from "./feedback";
 import situations from "./situations";
+import notion from "./notion";
+import obsidian from "./obsidian";
+import browser from "./browser";
 
 const app = new Hono();
 
@@ -18,4 +21,8 @@ app.route("/text-to-speech", textToSpeech);
 app.route("/recommend", recommend);
 app.route("/feedback", feedback);
 app.route("/situations", situations);
+app.route("/notion", notion);
+app.route("/obsidian", obsidian);
+app.route("/browser", browser);
+
 export default app;
