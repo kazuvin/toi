@@ -1,0 +1,23 @@
+{
+  "name": "toi",
+  "version": "1.0.0",
+  "scripts": {
+    "build:web": "npm run -w web build",
+    "dev:web": "npm run -w web dev",
+    "lint:web": "npm run -w web lint",
+    "preview:web": "npm run -w web preview",
+    "typecheck:web": "npm run -w web typecheck",
+    "dev:api": "npm run -w api dev",
+    "deploy:api": "npm run -w api deploy",
+    "generate:api": "npm run -w api generate",
+    "generate:types:api": "npm run -w api generate:types",
+    "local:migration:api": "npm run -w api local:migration",
+    "remote:migration:api": "npm run -w api remote:migration",
+    "test:api": "npm run -w api test",
+    "test:api:coverage": "npm run -w api test:coverage"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}

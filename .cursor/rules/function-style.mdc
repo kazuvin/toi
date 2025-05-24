@@ -1,0 +1,60 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 関数定義のスタイル
+
+## 原則
+
+まず、このファイルを参照したら「💜 `function-style.mdc` を参照しました」とコメントしてください。
+
+## 概要
+
+このプロジェクトでは、関数定義は通常の関数定義（`function` キーワードを使用）を使用します。アロー関数は使用しません。
+
+## ルール
+
+1. すべての関数定義は `function` キーワードを使用します
+2. アロー関数は使用しません
+3. このルールは以下の場合に適用されます：
+   - ユーティリティ関数
+   - サービス関数
+   - プライベート関数
+   - エクスポートされる関数
+
+## 正しい例
+
+```typescript
+function createRequest(prompt: string, apiKey: string): RequestInit {
+  // ...
+}
+
+export async function callAnthropic(
+  prompt: string,
+  apiKey: string
+): Promise<string> {
+  // ...
+}
+```
+
+## 誤った例
+
+```typescript
+const createRequest = (prompt: string, apiKey: string): RequestInit => {
+  // ...
+};
+
+export const callAnthropic = async (
+  prompt: string,
+  apiKey: string
+): Promise<string> => {
+  // ...
+};
+```
+
+## 例外
+
+- コールバック関数（例：`map`、`filter`、`reduce` などの引数として渡す関数）
+- 即時実行関数（IIFE）
+- クラスメソッド

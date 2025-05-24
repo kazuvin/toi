@@ -1,0 +1,90 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# コンポーネント定義のスタイル
+
+## 原則
+
+まず、このファイルを参照したら「💜 `component-style.mdc` を参照しました」とコメントしてください。
+
+## 概要
+
+このプロジェクトでは、コンポーネントの定義方法、ファイル構成、スタイリング方法について統一されたルールを定めています。
+
+## ルール
+
+### 1. コンポーネントのエクスポート方法
+
+- 単一ファイルに単一のコンポーネントを定義する場合は `export default` を使用
+- 単一ファイルに複数のコンポーネントを定義する場合は `export` を使用
+
+```typescript
+// 単一コンポーネントの場合
+export default function UserProfile() {
+  // ...
+}
+
+// 複数コンポーネントの場合
+export function UserAvatar() {
+  // ...
+}
+
+export function UserInfo() {
+  // ...
+}
+```
+
+### 2. 型定義
+
+- 型定義には `type` キーワードを使用
+- `interface` は使用しない
+
+```typescript
+type UserProps = {
+  name: string;
+  age: number;
+};
+```
+
+### 3. コンポーネントのファイル構成
+
+- コンポーネントはケバブケースのディレクトリ名で管理
+- 各コンポーネントディレクトリには以下のファイルを配置：
+  - `index.tsx`: メインのコンポーネントファイル
+  - `hooks/`: コンポーネント固有のロジックを格納
+    - 各 hook ファイルには対応するテストファイル（`*.test.ts`）を配置
+
+```
+components/
+  user-profile/
+    index.tsx
+    hooks/
+      use-user-data.ts
+      use-user-data.test.ts
+      use-user-actions.ts
+      use-user-actions.test.ts
+```
+
+### 4. スタイリング
+
+- 基本的に NativeWind を使用
+- アニメーションなど、NativeWind で実現が困難な場合のみ `style` プロパティを使用
+
+```typescript
+// NativeWind を使用する場合
+<View className="flex-1 items-center justify-center bg-white">
+  <Text className="text-lg font-bold text-gray-800">Hello</Text>
+</View>
+
+// アニメーションなどで style を使用する場合
+<Animated.View style={[styles.container, animatedStyle]}>
+  <Text>Animated Content</Text>
+</Animated.View>
+```
+
+## 例外
+
+- サードパーティライブラリの型定義は `interface` を使用しても良い
+- グローバルなスタイル定義は `styles.ts` で管理 
