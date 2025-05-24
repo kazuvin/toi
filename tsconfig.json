@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./packages/web/app/*"]
+    }
+  },
+  "references": [
+    { "path": "./packages/web" },
+    { "path": "./packages/api" },
+    { "path": "./packages/shared" }
+  ]
+}

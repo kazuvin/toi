@@ -59,7 +59,10 @@ type UserProps = {
 ```
 components/
   user-profile/
-    index.tsx
+    index.ts
+    user-profile.tsx
+    user-profile.stories.tsx
+    user-profile.test.ts
     hooks/
       use-user-data.ts
       use-user-data.test.ts
@@ -69,19 +72,8 @@ components/
 
 ### 4. スタイリング
 
-- 基本的に NativeWind を使用
-- アニメーションなど、NativeWind で実現が困難な場合のみ `style` プロパティを使用
-
-```typescript
-// NativeWind を使用する場合
-<View className="flex-1 items-center justify-center bg-white">
-  <Text className="text-lg font-bold text-gray-800">Hello</Text>
-</View>
-
-// アニメーションなどで style を使用する場合
-<Animated.View style={[styles.container, animatedStyle]}>
-  <Text>Animated Content</Text>
-</Animated.View>
+- Tailwind CSS を使用
+- 必ず tailwind.config.ts を参照し、ここで定義されているものを使用すること
 ```
 
 ## 例外

@@ -19,6 +19,7 @@ export default {
         ],
       },
       fontWeight: {
+        light: "300",
         DEFAULT: "400",
         bold: "700",
       },
@@ -29,13 +30,15 @@ export default {
         lg: "1.5rem",
         xl: "2rem",
         "2xl": "3rem",
+        "global-header-height": "var(--global-header-height)",
+        "global-sidebar-width": "var(--global-sidebar-width)",
       },
       borderRadius: {
-        sm: "calc(var(--radius) - 4px)",
-        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 1rem)",
+        md: "calc(var(--radius) - 0.5rem)",
         DEFAULT: "var(--radius)",
-        lg: "calc(var(--radius) + 2px)",
-        xl: "calc(var(--radius) + 4px)",
+        lg: "calc(var(--radius) + 0.5rem)",
+        xl: "calc(var(--radius) + 1rem)",
       },
       colors: {
         background: "hsl(var(--background))",
