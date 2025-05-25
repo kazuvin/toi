@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 
 export default function ChatLayout() {
   return (
-    <div className="flex h-screen items-center justify-center bg-background">
+    <div className="flex h-screen items-center justify-center bg-gradient-to-br from-pink-950/10 via-gray-100 to-violet-950/5">
       <Sidebar />
       <main className="flex flex-col flex-1 overflow-y-auto scrollbar-custom h-screen px-lg">
         <Outlet />

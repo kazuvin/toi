@@ -20,7 +20,7 @@ function AccountInfo({ isOpen }: AccountInfoProps) {
           !isOpen ? "opacity-0" : "opacity-100"
         )}
       >
-        <p className="text-sm font-medium truncate">ユーザー名</p>
+        <p className="text-sm font-medium truncate">Kazuvin</p>
         <p className="text-xs text-muted-foreground truncate">無料プラン</p>
       </div>
     </div>
@@ -37,7 +37,7 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "bg-foreground/5 flex flex-col h-full px-sm border-r border-border transition-all duration-300",
+        "flex flex-col h-full px-sm border-r-[0.5px] border-border transition-all duration-300 bg-card/30 backdrop-blur-md",
         isOpen ? "w-64" : "w-12",
         className
       )}
