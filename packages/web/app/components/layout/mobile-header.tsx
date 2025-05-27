@@ -16,7 +16,7 @@ export default function MobileHeader({
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full h-global-header-height px-md py-md  md:hidden",
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full h-global-header-height p-lg  md:hidden",
         className
       )}
       {...props}

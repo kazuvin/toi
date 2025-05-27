@@ -44,7 +44,7 @@ export function OutputFormatCard({
   );
 }
 
-export default function ChatNew() {
+export default function ContentNew() {
   const [inputText, setInputText] = useState("");
   const [outputFormats, setOutputFormats] = useState({
     flashcard: false,
@@ -73,7 +73,7 @@ export default function ChatNew() {
   };
 
   return (
-    <div className="flex flex-col flex-1 gap-8 items-center justify-center mx-auto max-w-5xl w-full mb-lg">
+    <div className="flex flex-col flex-1 gap-8 items-center justify-center mx-auto max-w-4xl w-full mb-lg">
       <h1 className="text-4xl font-bold bg-accent-gradient bg-clip-text text-transparent">
         こんにちは、Kazuvin
       </h1>

@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function ChatLayout() {
+export default function ContentLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
