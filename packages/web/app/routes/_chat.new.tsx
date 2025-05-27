@@ -99,17 +99,17 @@ export default function ChatNew() {
             <Button
               variant="outline"
               size="sm"
-              className="!rounded"
+              className="!rounded !px-2 sm:!px-4"
               onClick={() => document.getElementById("file-upload")?.click()}
             >
               <Upload className="w-4 h-4" />
-              ファイルをアップロード
+              <span className="hidden sm:inline">ファイルをアップロード</span>
             </Button>
             {!inputText && (
               <Button
                 variant="outline"
                 size="sm"
-                className="!rounded"
+                className="!rounded !px-2 sm:!px-4"
                 onClick={async () => {
                   try {
                     const text = await navigator.clipboard.readText();
@@ -123,12 +123,14 @@ export default function ChatNew() {
                 }}
               >
                 <ClipboardList className="w-4 h-4" />
-                クリップボードからペースト
+                <span className="hidden sm:inline">
+                  クリップボードからペースト
+                </span>
               </Button>
             )}
           </div>
         </div>
-        <div className="w-full max-w-4xl grid grid-cols-4 gap-4">
+        <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <OutputFormatCard
             title="フラッシュカード"
             description="単語や概念を覚えるためのカード形式"
