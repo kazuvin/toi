@@ -3,7 +3,7 @@ import {
   ExplainHistoryResponse,
   ExplainContent,
   ExplainResponse,
-} from "@parrot-buddy/shared";
+} from "@toi/shared";
 import { drizzle } from "drizzle-orm/d1";
 import { explainHistory } from "../../db/schemas";
 import { v4 as uuidv4 } from "uuid";

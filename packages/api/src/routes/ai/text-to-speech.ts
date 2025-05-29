@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { textToSpeech } from "@/services/ai/text-to-speech";
 import { zValidator } from "@hono/zod-validator";
-import { PostTextToSpeechBodySchema } from "@parrot-buddy/shared/src/schemas/ai/text-to-speech";
+import { PostTextToSpeechBodySchema } from "@toi/shared/src/schemas/ai/text-to-speech";
 
 type Bindings = {
   GOOGLE_CLOUD_API_KEY: string;

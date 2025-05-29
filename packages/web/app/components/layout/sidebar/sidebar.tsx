@@ -8,6 +8,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { Link } from "@remix-run/react";
+import useSWR from "swr";
+import { getSources } from "~/services/sources";
 
 type AccountInfoProps = ComponentPropsWithoutRef<"div"> & {
   isOpen: boolean;
@@ -45,7 +47,7 @@ function SidebarItem({
 }: {
   children: React.ReactNode;
   isOpen: boolean;
-  renderIcon: () => React.ReactNode;
+  renderIcon?: () => React.ReactNode;
   to: string;
 }) {
   return (
@@ -58,20 +60,23 @@ function SidebarItem({
           : ""
       )}
     >
-      <div
-        className={cn(
-          "p-2 rounded-sm transition-colors",
-          isOpen ? "" : "hover:bg-muted-foreground/10"
-        )}
-      >
-        <div className="size-4 flex items-center justify-center">
-          {renderIcon()}
+      {renderIcon && (
+        <div
+          className={cn(
+            "p-2 rounded-sm transition-colors",
+            isOpen ? "" : "hover:bg-muted-foreground/10"
+          )}
+        >
+          <div className="size-4 flex items-center justify-center">
+            {renderIcon()}
+          </div>
         </div>
-      </div>
+      )}
       <div
         className={cn(
-          "text-sm font-medium whitespace-nowrap transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0"
+          "flex items-center h-8 text-sm font-medium whitespace-nowrap transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0",
+          renderIcon ? "" : "px-sm"
         )}
       >
         {children}
@@ -86,6 +91,7 @@ type SidebarProps = ComponentPropsWithoutRef<"aside"> & {
 
 export default function Sidebar({ className, ...props }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const { data: sources } = useSWR("/api/sources", getSources);
 
   return (
     <aside
@@ -135,6 +141,20 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
           コンテンツ一覧
         </SidebarItem>
       </div>
+
+      <div className="flex flex-col gap-sm mt-lg">
+        <h2 className="text-xs px-sm pb-sm">最近の項目</h2>
+        {sources?.map((source) => (
+          <SidebarItem
+            key={source.id}
+            isOpen={isOpen}
+            to={`/contents/${source.id}`}
+          >
+            {source.content}
+          </SidebarItem>
+        ))}
+      </div>
+
       <div className="flex items-center mt-auto h-16">
         <AccountInfo isOpen={isOpen} />
       </div>

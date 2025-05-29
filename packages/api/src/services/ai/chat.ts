@@ -1,8 +1,5 @@
 import { callAnthropic } from "@/utils/llm";
-import {
-  ChatRequest,
-  ChatResponse,
-} from "@parrot-buddy/shared/src/schemas/ai/chat";
+import { ChatRequest, ChatResponse } from "@toi/shared/src/schemas/ai/chat";
 
 /**
  * AIとのチャットを行う

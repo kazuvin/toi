@@ -1,7 +1,7 @@
 import {
   PostRecommendBody,
   RecommendResponse,
-} from "@parrot-buddy/shared/src/schemas/ai/recommend";
+} from "@toi/shared/src/schemas/ai/recommend";
 import { callAnthropic } from "@/utils/llm";
 
 export async function getRecommendations(

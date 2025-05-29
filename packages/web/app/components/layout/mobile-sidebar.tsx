@@ -3,6 +3,8 @@ import { ComponentPropsWithoutRef } from "react";
 import { User, X, MessageSquare, PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
+import useSWR from "swr";
+import { getSources } from "~/services/sources";
 
 function AccountInfo() {
   return (
@@ -29,7 +31,7 @@ function SidebarItem({
   to,
 }: {
   children: React.ReactNode;
-  renderIcon: () => React.ReactNode;
+  renderIcon?: () => React.ReactNode;
   to: string;
 }) {
   return (
@@ -37,12 +39,21 @@ function SidebarItem({
       to={to}
       className="flex items-center gap-sm hover:bg-muted-foreground/10 rounded-sm transition-colors"
     >
-      <div className="p-2 rounded-sm transition-colors">
-        <div className="size-4 flex items-center justify-center">
-          {renderIcon()}
+      {renderIcon && (
+        <div className="p-2 rounded-sm transition-colors">
+          <div className="size-4 flex items-center justify-center">
+            {renderIcon()}
+          </div>
         </div>
+      )}
+      <div
+        className={cn(
+          "flex items-center h-8 text-sm font-medium whitespace-nowrap",
+          renderIcon ? "" : "px-sm"
+        )}
+      >
+        {children}
       </div>
-      <div className="text-sm font-medium whitespace-nowrap">{children}</div>
     </Link>
   );
 }
@@ -59,6 +70,8 @@ export default function MobileSidebar({
   onClose,
   ...props
 }: MobileSidebarProps) {
+  const { data: sources } = useSWR("/api/sources", getSources);
+
   return (
     <>
       {/* オーバーレイ */}
@@ -104,6 +117,16 @@ export default function MobileSidebar({
             コンテンツ一覧
           </SidebarItem>
         </div>
+
+        <div className="flex flex-col gap-sm mt-lg">
+          <h2 className="text-xs px-sm pb-sm">最近の項目</h2>
+          {sources?.map((source) => (
+            <SidebarItem key={source.id} to={`/contents/${source.id}`}>
+              {source.content}
+            </SidebarItem>
+          ))}
+        </div>
+
         <div className="mt-auto">
           <AccountInfo />
         </div>

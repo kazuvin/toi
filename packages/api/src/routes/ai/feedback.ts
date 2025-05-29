@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getFeedback } from "@/services/ai/feedback";
 import { zValidator } from "@hono/zod-validator";
-import { postFeedbackBodySchema } from "@parrot-buddy/shared/src/schemas/ai/feedback";
+import { postFeedbackBodySchema } from "@toi/shared/src/schemas/ai/feedback";
 
 type Bindings = {
   ANTHROPIC_API_KEY: string;

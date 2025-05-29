@@ -2,7 +2,7 @@ import { callAnthropic } from "@/utils/llm";
 import {
   PostFeedbackBody,
   FeedbackResponse,
-} from "@parrot-buddy/shared/src/schemas/ai/feedback";
+} from "@toi/shared/src/schemas/ai/feedback";
 
 export const getFeedback = async (
   { previousMessage, userMessage }: PostFeedbackBody,

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { translateToEnglish } from "@/services/ai/translate";
-import { TranslateRequestBody } from "@parrot-buddy/shared/src/schemas/ai/translate";
+import { TranslateRequestBody } from "@toi/shared/src/schemas/ai/translate";
 
 type Bindings = {
   ANTHROPIC_API_KEY: string;

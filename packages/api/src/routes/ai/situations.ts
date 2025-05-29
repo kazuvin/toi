@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getSituations } from "@/services/ai/situations";
 import { zValidator } from "@hono/zod-validator";
-import { situationRequestSchema } from "@parrot-buddy/shared/src/schemas/ai/situations";
+import { situationRequestSchema } from "@toi/shared/src/schemas/ai/situations";
 
 type Bindings = {
   ANTHROPIC_API_KEY: string;

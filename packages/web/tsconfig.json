@@ -16,7 +16,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "@toi/shared": ["../shared/src"]
     },
 
     // Remix takes care of building everything in `remix build`.

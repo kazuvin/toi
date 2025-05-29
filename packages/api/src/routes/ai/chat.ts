@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { ChatRequest } from "@parrot-buddy/shared/src/schemas/ai/chat";
+import { ChatRequest } from "@toi/shared/src/schemas/ai/chat";
 import { chatWithAI } from "@/services/ai/chat";
 
 type Bindings = {

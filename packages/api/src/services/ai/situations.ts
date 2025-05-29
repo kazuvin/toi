@@ -1,5 +1,5 @@
 import { callAnthropic } from "@/utils/llm";
-import { SituationResponse } from "@parrot-buddy/shared/src/schemas/ai/situations";
+import { SituationResponse } from "@toi/shared/src/schemas/ai/situations";
 
 export async function getSituations(
   { expression }: { expression: string },

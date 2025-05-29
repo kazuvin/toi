@@ -4,7 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import {
   PostTranscribeBodySchema,
   PostTranscribeResponseSchema,
-} from "@parrot-buddy/shared/src/schemas/ai/transcribe";
+} from "@toi/shared/src/schemas/ai/transcribe";
 
 type Bindings = {
   OPENAI_API_KEY: string;

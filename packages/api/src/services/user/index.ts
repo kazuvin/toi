@@ -1,7 +1,7 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import { DrizzleError, eq } from "drizzle-orm";
 import { users } from "@/db/schemas";
-import { PostUserBody } from "@parrot-buddy/shared/src/schemas/user";
+import { PostUserBody } from "@toi/shared/src/schemas/user";
 
 /**
  * ユーザー情報取得

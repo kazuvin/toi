@@ -1,5 +1,5 @@
 {
-  "name": "@parrot-buddy/shared",
+  "name": "@toi/shared",
   "version": "0.0.1",
   "private": true,
   "main": "./dist/index.js",

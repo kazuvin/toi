@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getRecommendations } from "@/services/ai/recommend";
 import { zValidator } from "@hono/zod-validator";
-import { postRecommendBodySchema } from "@parrot-buddy/shared/src/schemas/ai/recommend";
+import { postRecommendBodySchema } from "@toi/shared/src/schemas/ai/recommend";
 
 type Bindings = {
   ANTHROPIC_API_KEY: string;

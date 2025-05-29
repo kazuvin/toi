@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { ExplainRequestBody } from "@parrot-buddy/shared/src/schemas/ai/explain";
+import { ExplainRequestBody } from "@toi/shared/src/schemas/ai/explain";
 import {
   explainExpression,
   getExplainHistory,

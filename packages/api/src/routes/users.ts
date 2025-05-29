@@ -4,7 +4,7 @@ import { Context } from "hono";
 import { DrizzleError } from "drizzle-orm";
 import { createUser, getUser } from "@/services/user";
 import { zValidator } from "@hono/zod-validator";
-import { PostUserBodySchema } from "@parrot-buddy/shared/src/schemas/user";
+import { PostUserBodySchema } from "@toi/shared/src/schemas/user";
 
 type Bindings = {
   DB: D1Database;

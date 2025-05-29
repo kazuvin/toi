@@ -1,4 +1,4 @@
-import { PostTextToSpeechResponse } from "@parrot-buddy/shared/src/schemas/ai/text-to-speech";
+import { PostTextToSpeechResponse } from "@toi/shared/src/schemas/ai/text-to-speech";
 
 export const textToSpeech = async (
   apiKey: string,

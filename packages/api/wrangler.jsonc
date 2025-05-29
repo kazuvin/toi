@@ -1,13 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "parrot-buddy-api",
+  "name": "toi-api",
   "main": "src/index.ts",
-  "compatibility_date": "2025-03-29",
+  "compatibility_date": "2025-05-29",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
   "vars": {
-    "PROJECT_ID": "parrot-buddy",
+    "PROJECT_ID": "toi",
     "PUBLIC_JWK_CACHE_KEY": "public-jwk-cache"
   },
   "kv_namespaces": [
@@ -16,11 +16,12 @@
       "id": "ead4b9155e644544af8fae6d699d7820"
     }
   ],
+
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "prod-parrot-buddy-db",
-      "database_id": "281cfce8-4b49-4f92-b0d8-31324ed3d6d6",
+      "database_name": "prod-toi",
+      "database_id": "07e17ce5-5238-405a-892f-a21600103952",
       "migrations_dir": "migrations"
     }
   ]
