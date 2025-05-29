@@ -2,11 +2,10 @@ import { Button } from "~/components/ui/button";
 import {
   BookOpen,
   CheckSquare,
-  Pencil,
-  FileText,
   ChevronDown,
   ChevronUp,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -14,16 +13,29 @@ type ContentCardProps = {
   title: string;
   description: string;
   icon: React.ReactNode;
+  isGenerating?: boolean;
 };
 
-function ContentCard({ title, description, icon }: ContentCardProps) {
+function ContentCard({
+  title,
+  description,
+  icon,
+  isGenerating = false,
+}: ContentCardProps) {
   return (
     <div className="h-64 p-6 rounded border border-border bg-card/30 backdrop-blur-sm flex flex-col">
       {icon}
       <h3 className="font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
-      <Button variant="outline" className="mt-auto">
-        はじめる
+      <Button variant="outline" className="mt-auto" disabled={isGenerating}>
+        {isGenerating ? (
+          <>
+            <Loader2 className="size-4 animate-spin" />
+            生成中...
+          </>
+        ) : (
+          "はじめる"
+        )}
       </Button>
     </div>
   );
@@ -81,6 +93,7 @@ export default function ContentDetail() {
         <ContentCard
           title="フラッシュカード"
           description="単語や概念を覚えるためのカード形式"
+          isGenerating={true}
           icon={
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
               <BookOpen className="w-6 h-6 text-primary" />
