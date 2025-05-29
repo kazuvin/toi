@@ -75,20 +75,23 @@ export default function MobileSidebar({
   return (
     <>
       {/* オーバーレイ */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              onClose();
-            }
-          }}
-          aria-label="メニューを閉じる"
-        />
-      )}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            onClose();
+          }
+        }}
+        aria-label="メニューを閉じる"
+      />
+
+      {/* メニュー */}
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-screen w-2/3 px-sm border-r border-border transition-transform duration-300 bg-card/95 backdrop-blur-md flex flex-col",
