@@ -18,7 +18,7 @@
     "local:migration:api": "npm run -w api local:migration",
     "remote:migration:api": "npm run -w api remote:migration",
     "test:api": "npm run -w api test",
-    "test:api:coverage": "npm run -w api test:coverage",
+    "test:api:coverage": "npm run -w api test:coverage"
   },
   "private": true,
   "workspaces": [
