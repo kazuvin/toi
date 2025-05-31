@@ -30,8 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run lint
-        run: npm run lint:web
+      # TODO: 後ほどプロジェクトでリンターを導入し、このコメントを削除する
+      # - name: Run lint
+      #   run: npm run lint:web
 
       - name: Run type check
         run: npm run typecheck:web
