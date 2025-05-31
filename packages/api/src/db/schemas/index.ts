@@ -1,4 +1,4 @@
 export * from "./user";
 export * from "./explain_history";
 export * from "./source";
-export * from "./learning_content";
+export * from "./flashcard";

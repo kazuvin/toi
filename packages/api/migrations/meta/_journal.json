@@ -15,6 +15,13 @@
       "when": 1748534818979,
       "tag": "0001_tiny_captain_britain",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1748684212997,
+      "tag": "0002_vengeful_red_wolf",
+      "breakpoints": true
     }
   ]
 }

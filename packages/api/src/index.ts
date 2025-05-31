@@ -10,6 +10,8 @@ import user from "./routes/users";
 import loginUser from "./routes/login-user";
 import ai from "./routes/ai";
 import sources from "./routes/sources";
+import source from "./routes/sources/[id]";
+import flashcard from "./routes/sources/flashcard";
 
 type Bindings = VerifyFirebaseAuthEnv & {
   ENV: string;
@@ -45,5 +47,7 @@ app.get("/", (c) => {
 // app.route("/user", user);
 // app.route("/ai", ai);
 app.route("/sources", sources);
+app.route("/sources/:id", source);
+app.route("/sources/flashcard", flashcard);
 
 export default app;

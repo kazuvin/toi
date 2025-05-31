@@ -5,7 +5,6 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
-  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "@remix-run/react";
