@@ -7,6 +7,7 @@ import {
   getSources,
   updateSource,
 } from "@/services/sources";
+import { getFlashcardsBySourceId } from "@/services/flashcard";
 import { zValidator } from "@hono/zod-validator";
 import {
   GetSourceDetailResponse,
@@ -65,12 +66,15 @@ app
       return c.json({ message: "Source not found" }, 404);
     }
 
+    const flashcards = await getFlashcardsBySourceId(db, id);
+
     const response: GetSourceDetailResponse = {
       id: result[0].id,
       uid: result[0].uid ?? undefined,
       title: result[0].title ?? undefined,
       content: result[0].content,
       type: result[0].type,
+      isFlashcardGenerated: flashcards.length > 0,
       createdAt: result[0].createdAt ?? "",
       updatedAt: result[0].updatedAt ?? "",
     };

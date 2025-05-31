@@ -12,6 +12,7 @@ import ai from "./routes/ai";
 import sources from "./routes/sources";
 import source from "./routes/sources/[id]";
 import flashcard from "./routes/sources/flashcard";
+import title from "./routes/sources/title";
 
 type Bindings = VerifyFirebaseAuthEnv & {
   ENV: string;
@@ -49,5 +50,6 @@ app.get("/", (c) => {
 app.route("/sources", sources);
 app.route("/sources/:id", source);
 app.route("/sources/flashcard", flashcard);
+app.route("/sources/title", title);
 
 export default app;

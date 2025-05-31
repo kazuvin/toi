@@ -7,16 +7,19 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
-import { useParams } from "@remix-run/react";
-import useSWR from "swr";
+import { Link, useParams } from "@remix-run/react";
+import useSWR, { mutate as globalMutate } from "swr";
 import { getSourceById } from "~/services/sources";
 import { Spinner } from "~/components/ui/spinner/spinner";
+import { postTitle } from "~/services/source";
+import { postFlashcard } from "~/services/flashcard";
 
 type ContentCardProps = {
   title: string;
   description: string;
   icon: React.ReactNode;
   isGenerating?: boolean;
+  to: string;
 };
 
 function ContentCard({
@@ -24,21 +27,29 @@ function ContentCard({
   description,
   icon,
   isGenerating = false,
+  to,
 }: ContentCardProps) {
   return (
     <div className="h-64 p-6 rounded border border-border bg-card/30 backdrop-blur-sm flex flex-col">
       {icon}
       <h3 className="font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
-      <Button variant="outline" className="mt-auto" disabled={isGenerating}>
-        {isGenerating ? (
-          <>
-            <Spinner size="sm" />
-            生成中...
-          </>
-        ) : (
-          "はじめる"
-        )}
+      <Button
+        variant="outline"
+        className="mt-auto"
+        disabled={isGenerating}
+        asChild
+      >
+        <Link to={to}>
+          {isGenerating ? (
+            <>
+              <Spinner size="sm" />
+              生成中...
+            </>
+          ) : (
+            "はじめる"
+          )}
+        </Link>
       </Button>
     </div>
   );
@@ -58,7 +69,7 @@ function ContentAddCard() {
 export default function ContentDetail() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { id } = useParams();
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     id ? `/api/sources/${id}` : null,
     async () => {
       const response = await getSourceById(id!);
@@ -66,6 +77,18 @@ export default function ContentDetail() {
     },
     {
       revalidateOnFocus: false,
+      onSuccess: async (data) => {
+        if (!data.title) {
+          await postTitle({ sourceId: id! });
+          mutate();
+          globalMutate("/api/sources");
+        }
+
+        if (!data.isFlashcardGenerated) {
+          await postFlashcard({ sourceId: id! });
+          mutate();
+        }
+      },
     }
   );
 
@@ -75,7 +98,7 @@ export default function ContentDetail() {
         {data?.title || (
           <span className="flex items-center gap-sm text-muted-foreground">
             <Spinner size="sm" />
-            生成中...
+            {data && "生成中..."}
           </span>
         )}
       </h1>
@@ -108,12 +131,13 @@ export default function ContentDetail() {
         <ContentCard
           title="フラッシュカード"
           description="単語や概念を覚えるためのカード形式"
-          isGenerating={true}
+          isGenerating={!data?.isFlashcardGenerated}
           icon={
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
               <BookOpen className="w-6 h-6 text-primary" />
             </div>
           }
+          to={`/content/${id}/flashcards`}
         />
         <ContentCard
           title="選択問題"
@@ -123,6 +147,7 @@ export default function ContentDetail() {
               <CheckSquare className="w-6 h-6 text-primary" />
             </div>
           }
+          to={`/content/${id}/questions`}
         />
         <ContentAddCard />
       </div>

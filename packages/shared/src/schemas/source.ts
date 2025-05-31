@@ -8,6 +8,7 @@ export const GetSourceDetailResponseSchema = z.object({
   uid: z.string().optional(),
   title: z.string().optional(),
   content: z.string(),
+  isFlashcardGenerated: z.boolean().optional(),
   type: z.literal("TEXT"),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -149,3 +150,27 @@ export const getSourceFlashcardsResponseSchema = z.object({
 export type GetSourceFlashcardsResponse = z.infer<
   typeof getSourceFlashcardsResponseSchema
 >;
+
+/**
+ * タイトル生成 (POST) のリクエストボディスキーマ
+ */
+export const postTitleRequestBody = z.object({
+  sourceId: z.string(),
+});
+
+/**
+ * タイトル生成 (POST) のレスポンススキーマ
+ */
+export const postTitleResponseSchema = z.object({
+  title: z.string(),
+});
+
+/**
+ * タイトル生成 (POST) のリクエストボディの型
+ */
+export type PostTitleRequestBody = z.infer<typeof postTitleRequestBody>;
+
+/**
+ * タイトル生成 (POST) のレスポンスの型
+ */
+export type PostTitleResponse = z.infer<typeof postTitleResponseSchema>;

@@ -40,7 +40,7 @@ function SidebarItem({
   return (
     <Link
       to={to}
-      className="flex items-center gap-sm hover:bg-muted-foreground/10 rounded-sm transition-colors"
+      className="flex items-center gap-sm hover:bg-muted-foreground/10 rounded-sm transition-colors w-full"
       onClick={onClick}
     >
       {renderIcon && (
@@ -52,7 +52,7 @@ function SidebarItem({
       )}
       <div
         className={cn(
-          "flex items-center h-8 text-sm font-medium whitespace-nowrap",
+          "flex items-center h-8 text-sm font-medium truncate",
           renderIcon ? "" : "px-sm"
         )}
       >

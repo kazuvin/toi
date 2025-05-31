@@ -4,6 +4,7 @@ import { getFlashcardsBySourceId } from "~/services/flashcard";
 import { useState, useRef } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import { Spinner } from "~/components/ui/spinner/spinner";
 
 export default function ContentFlashcards() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function ContentFlashcards() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     id ? `/api/sources/${id}/flashcards` : null,
     async () => {
       const response = await getFlashcardsBySourceId(id!);
@@ -68,6 +69,14 @@ export default function ContentFlashcards() {
 
   const currentCard = data?.flashcards[currentIndex];
   const nextCard = data?.flashcards[currentIndex + 1];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   if (!currentCard) {
     return (
