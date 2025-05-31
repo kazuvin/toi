@@ -1,0 +1,163 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# API 実装ルール
+
+## 原則
+
+まず、このファイルを参照したら「💜 `api.mdc` を参照しました」とコメントしてください。
+
+## 開発手順
+
+### 1. IF スキーマの定義
+
+まず `/packages/shared/src/schemas/xxxx.ts` に API の IF スキーマを定義すること。こちらのスキーマは api だけでなく web でも使用する共通のスキーマである。定義方法は下記を参考にすること。
+
+```ts
+import { z } from "zod";
+
+/**
+ * xxxx (POST) のリクエストボディスキーマ
+ */
+export const postXxxxRequestBody = z.object({
+  hoge: z.string()
+})
+
+/**
+ * xxxx (GET) のクエリパラメータスキーマ
+ */
+export const getXxxxQueryParamsSchema = z.object({
+  hoge: z.string()
+})
+
+
+/**
+ * xxxx (GET) のレスポンススキーマ
+ */
+export const getXxxxResponseSchema = z.object({
+  hoge: z.string()
+})
+
+/**
+ * xxxx (POST) のリクエストボディの型
+ */
+export type PostXxxxRequestBody = z.infer<typeof xxxxRequestBodySchema>
+
+/**
+ * xxxx (GET) のクエリパラメータの型
+ */
+export type GetXxxxQueryParams = z.infer<typeof xxxxQueryParamsSchema>
+
+/**
+ * xxxx (GET) のレスポンスの型
+ */
+export type GetXxxxResponse = z.infer<typeof xxxxResponseSchema>
+```
+
+
+### 2. ルートファイルの追加
+
+Hono のルートを追加する。`http://{API_URL}/hoge` というルートであれば `/packages/api/src/routes/hoge.ts` を作成する。下記を参考に追加すること。
+
+```ts
+import { drizzle } from "drizzle-orm/d1";
+import { Hono } from "hono";
+import { Context } from "hono";
+import { DrizzleError } from "drizzle-orm";
+
+type Bindings = {
+  DB: D1Database;
+};
+
+type Variables = {
+  uid: string;
+};
+
+type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;
+
+// エラーハンドラー
+const errorHandler = async (err: Error, c: AppContext) => {
+  if (err instanceof DrizzleError) {
+    if (err.message === "User not found") {
+      return c.json({ message: err.message }, 404);
+    }
+    return c.json({ message: err.message }, 400);
+  }
+  return c.json({ message: "Server Error" }, 500);
+};
+
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+app.onError(errorHandler);
+
+app.get("/", async (c) => {
+  const db = drizzle(c.env.DB);
+  const currentUid = c.get("uid");
+
+  if (!currentUid) {
+    return c.json({ message: "Unauthorized access" }, 403);
+  }
+
+  // ビジネスロジック
+  // const result = await getUser(db, currentUid);
+
+  return c.json(result);
+});
+
+export default app;
+
+```
+
+
+### 3. Hono にルートを組み込む
+
+`http://{API_URL}/hoge` のルートを組み込むために、`/packages/api/src/index.ts` に先ほど作成したファイルを import して組み込みを行う。
+
+```ts
+import { Hono } from "hono";
+import hoge from "./routes/hoge";
+
+// 省略
+
+app.route("/hoge", hoge);
+
+export default app;
+`
+```
+
+
+### 4. ビジネスロジックを作成
+
+先ほど作成した `/packages/api/src/routes/hoge.ts` にビジネスロジックを追加する。また、ビジネスロジックで使用する関数は下記ルールに従って作成すること。
+
+- ドメイン固有のロジック
+  - `/packages/api/src/services/hoge.ts` を作成もしくは既にある場合はその中に関数を定義して使用する
+- 共有で使用するロジック
+  - `/packages/api/src/utils/xxxx.ts` を作成もしくは既に存在するファイルに関数を定義して使用する
+
+
+### 5. web に API 連携用のサービス関数を定義
+
+最後に web に API 連携用のサービス関数を定義する。`/packages/web/app/services/hoge.ts` を作成し、HTTP メソッドに応じて下記を参考に関数を追加してください。
+
+```ts
+import {
+  GetHogeResponse,
+  GetHogeQueryParams,
+  PostHogeResponse,
+  PostHogeRequestBody,
+} from "@toi/shared/src/schemas/source";
+import { api } from "./base";
+
+export const getHoge = async (id: string, params?: GetHogeQueryParams) => {
+  return api.get<GetHogeResponse>(`/hoge/${id}`, { params });
+};
+
+export const postHoge = async (body?: PostHogeRequestBody) => {
+  return api.post<PostHogeResponse>('/hoge', body);
+};
+
+```

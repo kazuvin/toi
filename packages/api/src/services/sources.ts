@@ -1,6 +1,6 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import { source } from "@/db/schemas";
-import { PostSourceBody } from "@toi/shared/src/schemas/source";
+import { PostSourceBody, PutSourceBody } from "@toi/shared/src/schemas/source";
 import { eq } from "drizzle-orm";
 
 export const getSources = async (db: DrizzleD1Database) => {
@@ -22,5 +22,21 @@ export const createSource = async (
       content: data.content,
       type: data.type,
     })
+    .returning();
+};
+
+export const updateSource = async (
+  db: DrizzleD1Database,
+  id: string,
+  data: PutSourceBody
+) => {
+  return await db
+    .update(source)
+    .set({
+      content: data.content,
+      type: data.type,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(source.id, id))
     .returning();
 };

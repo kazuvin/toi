@@ -2,12 +2,12 @@ import type { MetaFunction } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
 import { ClipboardList, Sparkles, Upload } from "lucide-react";
+import { useNavigate } from "@remix-run/react";
+import { createSource } from "~/services/sources";
+import { toast } from "sonner";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+  return [{ title: "Toi" }, { name: "description", content: "Toi" }];
 };
 
 type OutputFormatCardProps = {
@@ -45,7 +45,9 @@ export function OutputFormatCard({
 }
 
 export default function ContentNew() {
+  const navigate = useNavigate();
   const [inputText, setInputText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [outputFormats, setOutputFormats] = useState({
     flashcard: false,
     multipleChoice: false,
@@ -69,6 +71,24 @@ export default function ContentNew() {
         setInputText(text);
       };
       reader.readAsText(file);
+    }
+  };
+
+  const handleCreateContent = async () => {
+    if (!inputText) return;
+
+    setIsLoading(true);
+    try {
+      const response = await createSource({
+        content: inputText,
+        type: "TEXT",
+      });
+      navigate(`/content/${response.id}`);
+    } catch (error) {
+      toast.error("学習コンテンツの作成に失敗しました");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -160,11 +180,16 @@ export default function ContentNew() {
       <Button
         variant="outline"
         size="lg"
-        disabled={!inputText || Object.values(outputFormats).every((v) => !v)}
+        disabled={
+          !inputText ||
+          Object.values(outputFormats).every((v) => !v) ||
+          isLoading
+        }
         className="!rounded"
+        onClick={handleCreateContent}
       >
         <Sparkles className="w-4 h-4" />
-        学習コンテンツを作成する
+        {isLoading ? "作成中..." : "学習コンテンツを作成する"}
       </Button>
     </div>
   );

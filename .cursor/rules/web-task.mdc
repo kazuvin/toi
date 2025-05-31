@@ -1,0 +1,22 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# フロント実装タスク
+
+## 原則
+
+まず、このファイルを参照したら「💜 `web-task.mdc` を参照しました」とコメントしてください。
+
+## 開発フロー
+
+### 1. `/packages/web/app/routes/_content.new.tsx` に学習コンテンツを新規で作成するルートがある。この中の「学習コンテンツを作成する」ボタンを押下したら、次の処理を行うこと。
+
+- `/packages/web/app/services/source.ts` の createSource を呼び出す。また、この処理はテストしやすいようにフックとして定義すること。
+  - 成功時は、createSource で返却された id をもとに、`/content/${id}` に遷移させる。
+  - 失敗時は、エラートーストを表示させる。
+
+## テスト
+
+ビジネスロジックのフックの vitest を作成する。

@@ -1,12 +1,19 @@
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { Context } from "hono";
-import { DrizzleError } from "drizzle-orm";
-import { createSource, getSourceById, getSources } from "@/services/sources";
+import {
+  createSource,
+  getSourceById,
+  getSources,
+  updateSource,
+} from "@/services/sources";
 import { zValidator } from "@hono/zod-validator";
 import {
   GetSourceDetailResponse,
   PostSourceBodySchema,
+  PostSourceDetailResponse,
+  PutSourceBodySchema,
+  PutSourceDetailResponse,
 } from "@toi/shared/src/schemas/source";
 import { ZodError } from "zod";
 
@@ -74,7 +81,42 @@ app
     const json = c.req.valid("json");
     const db = drizzle(c.env.DB);
     const result = await createSource(db, json);
-    return c.json(result);
+
+    const response: PostSourceDetailResponse = {
+      id: result[0].id,
+      uid: result[0].uid ?? undefined,
+      title: result[0].title ?? undefined,
+      content: result[0].content,
+      type: result[0].type,
+      createdAt: result[0].createdAt ?? "",
+      updatedAt: result[0].updatedAt ?? "",
+    };
+
+    return c.json(response);
+  })
+  .put("/:id", zValidator("json", PutSourceBodySchema), async (c) => {
+    const id = c.req.param("id");
+    const json = c.req.valid("json");
+    const db = drizzle(c.env.DB);
+
+    const existingSource = await getSourceById(db, id);
+    if (existingSource.length === 0) {
+      return c.json({ message: "Source not found" }, 404);
+    }
+
+    const result = await updateSource(db, id, json);
+
+    const response: PutSourceDetailResponse = {
+      id: result[0].id,
+      uid: result[0].uid ?? undefined,
+      title: result[0].title ?? undefined,
+      content: result[0].content,
+      type: result[0].type,
+      createdAt: result[0].createdAt ?? "",
+      updatedAt: result[0].updatedAt ?? "",
+    };
+
+    return c.json(response);
   });
 
 export default app;

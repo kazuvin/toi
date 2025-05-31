@@ -7,6 +7,10 @@
     "lint:web": "npm run -w web lint",
     "preview:web": "npm run -w web preview",
     "typecheck:web": "npm run -w web typecheck",
+    "test:web": "npm run -w web test",
+    "test:web:watch": "npm run -w web test:watch",
+    "test:web:coverage": "npm run -w web test:coverage",
+    "test:web:ui": "npm run -w web test:ui",
     "dev:api": "npm run -w api dev",
     "deploy:api": "npm run -w api deploy",
     "generate:api": "npm run -w api generate",
@@ -14,7 +18,7 @@
     "local:migration:api": "npm run -w api local:migration",
     "remote:migration:api": "npm run -w api remote:migration",
     "test:api": "npm run -w api test",
-    "test:api:coverage": "npm run -w api test:coverage"
+    "test:api:coverage": "npm run -w api test:coverage",
   },
   "private": true,
   "workspaces": [
@@ -24,5 +28,8 @@
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
     "eslint-import-resolver-typescript": "^4.4.1"
+  },
+  "dependencies": {
+    "@radix-ui/react-toast": "^1.2.14"
   }
 }

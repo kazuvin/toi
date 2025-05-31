@@ -28,3 +28,22 @@ export const PostSourceBodySchema = z.object({
 });
 
 export type PostSourceBody = z.infer<typeof PostSourceBodySchema>;
+
+export const PostSourceDetailResponseSchema = GetSourceDetailResponseSchema;
+
+export type PostSourceDetailResponse = z.infer<
+  typeof PostSourceDetailResponseSchema
+>;
+
+export const PutSourceBodySchema = z.object({
+  content: z.string(),
+  type: z.literal("TEXT"),
+});
+
+export type PutSourceBody = z.infer<typeof PutSourceBodySchema>;
+
+export const PutSourceDetailResponseSchema = GetSourceDetailResponseSchema;
+
+export type PutSourceDetailResponse = z.infer<
+  typeof PutSourceDetailResponseSchema
+>;

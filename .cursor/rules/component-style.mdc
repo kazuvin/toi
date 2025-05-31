@@ -51,24 +51,26 @@ type UserProps = {
 ### 3. コンポーネントのファイル構成
 
 - コンポーネントはケバブケースのディレクトリ名で管理
-- 各コンポーネントディレクトリには以下のファイルを配置：
-  - `index.tsx`: メインのコンポーネントファイル
-  - `hooks/`: コンポーネント固有のロジックを格納
-    - 各 hook ファイルには対応するテストファイル（`*.test.ts`）を配置
 
 ```
 components/
-  user-profile/
+  hoge/
     index.ts
-    user-profile.tsx
-    user-profile.stories.tsx
-    user-profile.test.ts
-    hooks/
-      use-user-data.ts
-      use-user-data.test.ts
-      use-user-actions.ts
-      use-user-actions.test.ts
+    hoge.tsx
+    hoge.stories.tsx
+    use-hoge.ts
+    use-hoge.test.ts
 ```
+
+index.ts は export 用のファイル
+
+```
+export * from "./hoge";
+```
+
+hoge.tsx はコンポーネントファイル
+hoge.stories.tsx は Storybook ファイルであり、必ず作成すること。
+use-hoge.ts はコンポーネント内で使用するロジックを定義するためのファイル。ロジックが肥大化し、可読性が落ちた場合は use-xxxx とロジックを切り分けること。また、合わせて use-xxxx.test.ts としてテストも追加すること。
 
 ### 4. スタイリング
 
@@ -79,4 +81,3 @@ components/
 ## 例外
 
 - サードパーティライブラリの型定義は `interface` を使用しても良い
-- グローバルなスタイル定義は `styles.ts` で管理 

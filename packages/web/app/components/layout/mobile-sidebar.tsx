@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
 import useSWR from "swr";
 import { getSources } from "~/services/sources";
+import { Spinner } from "../ui/spinner/spinner";
 
 function AccountInfo() {
   return (
@@ -29,15 +30,18 @@ function SidebarItem({
   children,
   renderIcon,
   to,
+  onClick,
 }: {
   children: React.ReactNode;
   renderIcon?: () => React.ReactNode;
   to: string;
+  onClick?: () => void;
 }) {
   return (
     <Link
       to={to}
       className="flex items-center gap-sm hover:bg-muted-foreground/10 rounded-sm transition-colors"
+      onClick={onClick}
     >
       {renderIcon && (
         <div className="p-2 rounded-sm transition-colors">
@@ -110,12 +114,14 @@ export default function MobileSidebar({
           <SidebarItem
             renderIcon={() => <PlusCircle className="size-4" />}
             to="/new"
+            onClick={onClose}
           >
             新しく作成する
           </SidebarItem>
           <SidebarItem
             renderIcon={() => <MessageSquare className="size-4" />}
             to="/contents"
+            onClick={onClose}
           >
             コンテンツ一覧
           </SidebarItem>
@@ -124,8 +130,17 @@ export default function MobileSidebar({
         <div className="flex flex-col gap-sm mt-lg">
           <h2 className="text-xs px-sm pb-sm">最近の項目</h2>
           {sources?.map((source) => (
-            <SidebarItem key={source.id} to={`/contents/${source.id}`}>
-              {source.content}
+            <SidebarItem
+              key={source.id}
+              to={`/content/${source.id}`}
+              onClick={onClose}
+            >
+              {source.title || (
+                <div className="flex items-center gap-md">
+                  <Spinner size="sm" />
+                  <span className="text-muted-foreground">生成中...</span>
+                </div>
+              )}
             </SidebarItem>
           ))}
         </div>

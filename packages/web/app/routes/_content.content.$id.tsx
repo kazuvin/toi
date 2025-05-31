@@ -8,6 +8,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
+import { useParams } from "@remix-run/react";
+import useSWR from "swr";
+import { getSourceById } from "~/services/sources";
+import { Spinner } from "~/components/ui/spinner/spinner";
 
 type ContentCardProps = {
   title: string;
@@ -30,7 +34,7 @@ function ContentCard({
       <Button variant="outline" className="mt-auto" disabled={isGenerating}>
         {isGenerating ? (
           <>
-            <Loader2 className="size-4 animate-spin" />
+            <Spinner size="sm" />
             生成中...
           </>
         ) : (
@@ -54,10 +58,28 @@ function ContentAddCard() {
 
 export default function ContentDetail() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { id } = useParams();
+  const { data } = useSWR(
+    id ? `/api/sources/${id}` : null,
+    async () => {
+      const response = await getSourceById(id!);
+      return response;
+    },
+    {
+      revalidateOnFocus: false,
+    }
+  );
 
   return (
     <div className="flex flex-col flex-1 gap-8 mx-auto max-w-4xl w-full mb-lg py-lg">
-      <h1 className="text-xl font-bold">contents title</h1>
+      <h1 className="text-xl font-bold">
+        {data?.title || (
+          <span className="flex items-center gap-sm text-muted-foreground">
+            <Spinner size="sm" />
+            生成中...
+          </span>
+        )}
+      </h1>
       <div className="p-6 rounded border border-border bg-card/30 backdrop-blur-sm flex flex-col gap-sm">
         <h2 className="font-bold">入力</h2>
         <div className="relative">
@@ -66,13 +88,7 @@ export default function ContentDetail() {
               !isExpanded ? "line-clamp-3" : ""
             }`}
           >
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing
-            elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur
-            adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet
-            consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit
-            amet consectetur adipisicing elit. Quisquam, quos.
+            {data?.content}
           </p>
         </div>
         <div className="flex items-center justify-center mt-md">
