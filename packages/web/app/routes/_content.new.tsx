@@ -1,95 +1,33 @@
 import type { MetaFunction } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
-import { useState } from "react";
 import { ClipboardList, Sparkles, Upload } from "lucide-react";
-import { useNavigate } from "@remix-run/react";
-import { createSource } from "~/services/sources";
-import { toast } from "sonner";
+import { OutputFormatList } from "~/features/content/components/output-format-list";
+import { useOutputFormats } from "~/features/content/hooks/use-output-formats";
+import { useFileHandler } from "~/features/content/hooks/use-file-handler";
+import { useContentCreation } from "~/features/content/hooks/use-content-creation";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Toi" }, { name: "description", content: "Toi" }];
 };
 
-type OutputFormatCardProps = {
-  title: string;
-  description: string;
-  isSelected: boolean;
-  onClick: () => void;
-};
-
-export function OutputFormatCard({
-  title,
-  description,
-  isSelected,
-  onClick,
-}: OutputFormatCardProps) {
-  return (
-    <button
-      type="button"
-      className={`p-6 rounded border cursor-pointer transition-all duration-200 text-left ${
-        isSelected
-          ? "border-primary bg-primary/5"
-          : "border-border hover:border-ring/50 bg-card/30 backdrop-blur-sm"
-      }`}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          onClick();
-        }
-      }}
-    >
-      <h3 className="font-medium mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </button>
-  );
-}
-
 export default function ContentNew() {
-  const navigate = useNavigate();
-  const [inputText, setInputText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [outputFormats, setOutputFormats] = useState({
-    flashcard: false,
-    multipleChoice: false,
-    fillInTheBlank: false,
-    essay: false,
-  });
-
-  const toggleOutputFormat = (format: keyof typeof outputFormats) => {
-    setOutputFormats((prev) => ({
-      ...prev,
-      [format]: !prev[format],
-    }));
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        setInputText(text);
-      };
-      reader.readAsText(file);
-    }
-  };
+  const {
+    outputFormats,
+    toggleOutputFormat,
+    hasSelectedFormats,
+    getSelectedFormats,
+  } = useOutputFormats();
+  const {
+    inputText,
+    setInputText,
+    handleFileUpload,
+    handlePasteFromClipboard,
+  } = useFileHandler();
+  const { isLoading, createContent } = useContentCreation();
 
   const handleCreateContent = async () => {
-    if (!inputText) return;
-
-    setIsLoading(true);
-    try {
-      const response = await createSource({
-        content: inputText,
-        type: "TEXT",
-      });
-      navigate(`/content/${response.id}`);
-    } catch (error) {
-      toast.error("学習コンテンツの作成に失敗しました");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    const selectedFormats = getSelectedFormats();
+    await createContent(inputText, selectedFormats);
   };
 
   return (
@@ -130,17 +68,7 @@ export default function ContentNew() {
                 variant="outline"
                 size="sm"
                 className="!rounded !px-2 sm:!px-4"
-                onClick={async () => {
-                  try {
-                    const text = await navigator.clipboard.readText();
-                    setInputText(text);
-                  } catch (err) {
-                    console.error(
-                      "クリップボードからの読み取りに失敗しました:",
-                      err
-                    );
-                  }
-                }}
+                onClick={handlePasteFromClipboard}
               >
                 <ClipboardList className="w-4 h-4" />
                 <span className="hidden sm:inline">
@@ -150,41 +78,15 @@ export default function ContentNew() {
             )}
           </div>
         </div>
-        <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <OutputFormatCard
-            title="フラッシュカード"
-            description="単語や概念を覚えるためのカード形式"
-            isSelected={outputFormats.flashcard}
-            onClick={() => toggleOutputFormat("flashcard")}
-          />
-          <OutputFormatCard
-            title="選択問題"
-            description="複数の選択肢から正解を選ぶ形式"
-            isSelected={outputFormats.multipleChoice}
-            onClick={() => toggleOutputFormat("multipleChoice")}
-          />
-          <OutputFormatCard
-            title="空欄補充"
-            description="問題文の空欄を埋める形式"
-            isSelected={outputFormats.fillInTheBlank}
-            onClick={() => toggleOutputFormat("fillInTheBlank")}
-          />
-          <OutputFormatCard
-            title="記述問題"
-            description="自由に回答を記述する形式"
-            isSelected={outputFormats.essay}
-            onClick={() => toggleOutputFormat("essay")}
-          />
-        </div>
+        <OutputFormatList
+          outputFormats={outputFormats}
+          onToggleFormat={toggleOutputFormat}
+        />
       </div>
       <Button
         variant="outline"
         size="lg"
-        disabled={
-          !inputText ||
-          Object.values(outputFormats).every((v) => !v) ||
-          isLoading
-        }
+        disabled={!inputText || !hasSelectedFormats || isLoading}
         className="!rounded"
         onClick={handleCreateContent}
       >
