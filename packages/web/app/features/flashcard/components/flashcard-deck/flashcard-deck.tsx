@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
@@ -14,6 +14,8 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   const [completedCards, setCompletedCards] = useState<{
     [key: string]: "ok" | "ng";
   }>({});
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   function handleSwipeLeft() {
     const currentCard = flashcards[currentIndex];
@@ -38,15 +40,52 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   }
 
   function nextCard() {
-    if (currentIndex < flashcards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    setIsAnimating(true);
+
+    // 最後のカードかどうかをチェック
+    const isLastCard = currentIndex >= flashcards.length - 1;
+
+    // アニメーション開始
+    setTimeout(() => {
+      if (isLastCard) {
+        // 最後のカードの場合は完了状態に移行
+        setCurrentIndex(flashcards.length);
+        setShowCelebration(true);
+      } else {
+        // 次のカードに移動
+        setCurrentIndex(currentIndex + 1);
+      }
+
+      // アニメーション終了
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 100);
+    }, 200);
   }
 
   function handleReset() {
-    setCurrentIndex(0);
-    setCompletedCards({});
+    setIsAnimating(true);
+    setShowCelebration(false);
+    setTimeout(() => {
+      setCurrentIndex(0);
+      setCompletedCards({});
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 100);
+    }, 200);
   }
+
+  // カードが変わったときの初期アニメーション
+  useEffect(() => {
+    if (currentIndex < flashcards.length) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, flashcards.length]);
 
   const isCompleted = currentIndex >= flashcards.length;
   const currentCard = flashcards[currentIndex];
@@ -58,10 +97,43 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     (v) => v === "ng"
   ).length;
 
+  // 進捗率の計算（完了時は100%）
+  const progressPercentage = isCompleted
+    ? 100
+    : Math.round((completedCount / flashcards.length) * 100);
+
   if (isCompleted) {
     return (
       <div className={cn("flex flex-col items-center space-y-6", className)}>
-        <div className="text-center space-y-4">
+        {/* 100%完了の進捗表示 */}
+        <div className="w-full max-w-md">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>
+              {flashcards.length} / {flashcards.length}
+            </span>
+            <span className="text-green-600 font-bold">100%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className={cn(
+                "h-2 rounded-full transition-all duration-500",
+                showCelebration
+                  ? "bg-gradient-to-r from-green-400 to-blue-500 animate-pulse"
+                  : "bg-green-500"
+              )}
+              style={{ width: "100%" }}
+            />
+          </div>
+        </div>
+
+        {/* 完了メッセージ */}
+        <div
+          className={cn(
+            "text-center space-y-4 transition-all duration-500",
+            showCelebration && "animate-bounce"
+          )}
+        >
+          <div className="text-4xl mb-2">🎉</div>
           <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
           <div className="space-y-2">
             <p className="text-lg text-gray-600">
@@ -81,7 +153,12 @@ export function FlashcardDeck({ flashcards, className }: Props) {
             </div>
           </div>
         </div>
-        <Button onClick={handleReset} size="lg">
+
+        <Button
+          onClick={handleReset}
+          size="lg"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+        >
           もう一度学習する
         </Button>
       </div>
@@ -96,13 +173,13 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           <span>
             {currentIndex + 1} / {flashcards.length}
           </span>
-          <span>{Math.round((currentIndex / flashcards.length) * 100)}%</span>
+          <span>{progressPercentage}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-blue-500 h-2 rounded-full transition-all duration-300"
             style={{
-              width: `${(currentIndex / flashcards.length) * 100}%`,
+              width: `${progressPercentage}%`,
             }}
           />
         </div>
@@ -116,7 +193,10 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           .map((_, index) => (
             <div
               key={index}
-              className="absolute w-80 h-48 bg-gray-300 rounded-xl shadow-lg"
+              className={cn(
+                "absolute w-96 h-64 bg-gray-300 rounded-xl shadow-lg transition-all duration-300",
+                isAnimating && "scale-95 opacity-50"
+              )}
               style={{
                 transform: `translateY(${(index + 1) * 4}px) scale(${
                   1 - (index + 1) * 0.02
@@ -126,13 +206,23 @@ export function FlashcardDeck({ flashcards, className }: Props) {
             />
           ))}
 
-        {/* Current card */}
+        {/* Current card with animation */}
         {currentCard && (
-          <FlashcardItem
-            flashcard={currentCard}
-            onSwipeLeft={handleSwipeLeft}
-            onSwipeRight={handleSwipeRight}
-          />
+          <div
+            className={cn(
+              "transition-all duration-300 ease-out",
+              isAnimating
+                ? "scale-90 opacity-0 transform rotate-1"
+                : "scale-100 opacity-100 transform rotate-0"
+            )}
+          >
+            <FlashcardItem
+              key={`${currentCard.id}-${currentIndex}`} // カードが変わったときにコンポーネントを再マウント
+              flashcard={currentCard}
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+            />
+          </div>
         )}
       </div>
 
@@ -143,6 +233,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           size="lg"
           onClick={handleSwipeLeft}
           className="px-8"
+          disabled={isAnimating}
         >
           NG
         </Button>
@@ -151,6 +242,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           size="lg"
           onClick={handleSwipeRight}
           className="px-8 bg-green-600 hover:bg-green-700"
+          disabled={isAnimating}
         >
           OK
         </Button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { cn } from "~/lib/utils";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
@@ -21,8 +21,15 @@ export function FlashcardItem({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const hasDraggedRef = useRef(false);
+  const currentDragRef = useRef({ x: 0, y: 0 });
 
   function handleFlip() {
+    if (hasDraggedRef.current) {
+      hasDraggedRef.current = false;
+      return;
+    }
     setIsFlipped(!isFlipped);
   }
 
@@ -40,15 +47,21 @@ export function FlashcardItem({
   }
 
   function handleMouseDown(e: React.MouseEvent) {
+    e.preventDefault();
     setIsDragging(true);
-    const startX = e.clientX;
-    const startY = e.clientY;
+    hasDraggedRef.current = false;
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    currentDragRef.current = { x: 0, y: 0 };
 
     function handleMouseMove(e: MouseEvent) {
-      if (!isDragging) return;
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
 
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
+      currentDragRef.current = { x: deltaX, y: deltaY };
+
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDraggedRef.current = true;
+      }
 
       setDragOffset({ x: deltaX, y: deltaY });
       setRotation(deltaX * 0.1);
@@ -58,8 +71,10 @@ export function FlashcardItem({
       setIsDragging(false);
 
       const threshold = 100;
-      if (Math.abs(dragOffset.x) > threshold) {
-        if (dragOffset.x > 0) {
+      const finalDragX = currentDragRef.current.x;
+
+      if (Math.abs(finalDragX) > threshold) {
+        if (finalDragX > 0) {
           onSwipeRight();
         } else {
           onSwipeLeft();
@@ -68,9 +83,14 @@ export function FlashcardItem({
 
       setDragOffset({ x: 0, y: 0 });
       setRotation(0);
+      currentDragRef.current = { x: 0, y: 0 };
 
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+
+      setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 100);
     }
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -78,28 +98,38 @@ export function FlashcardItem({
   }
 
   function handleTouchStart(e: React.TouchEvent) {
+    e.preventDefault();
     setIsDragging(true);
+    hasDraggedRef.current = false;
     const touch = e.touches[0];
-    const startX = touch.clientX;
-    const startY = touch.clientY;
+    dragStartRef.current = { x: touch.clientX, y: touch.clientY };
+    currentDragRef.current = { x: 0, y: 0 };
 
     function handleTouchMove(e: TouchEvent) {
-      if (!isDragging) return;
-
+      e.preventDefault();
       const touch = e.touches[0];
-      const deltaX = touch.clientX - startX;
-      const deltaY = touch.clientY - startY;
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+
+      currentDragRef.current = { x: deltaX, y: deltaY };
+
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDraggedRef.current = true;
+      }
 
       setDragOffset({ x: deltaX, y: deltaY });
       setRotation(deltaX * 0.1);
     }
 
-    function handleTouchEnd() {
+    function handleTouchEnd(e: TouchEvent) {
+      e.preventDefault();
       setIsDragging(false);
 
       const threshold = 100;
-      if (Math.abs(dragOffset.x) > threshold) {
-        if (dragOffset.x > 0) {
+      const finalDragX = currentDragRef.current.x;
+
+      if (Math.abs(finalDragX) > threshold) {
+        if (finalDragX > 0) {
           onSwipeRight();
         } else {
           onSwipeLeft();
@@ -108,13 +138,18 @@ export function FlashcardItem({
 
       setDragOffset({ x: 0, y: 0 });
       setRotation(0);
+      currentDragRef.current = { x: 0, y: 0 };
 
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
+
+      setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 100);
     }
 
-    document.addEventListener("touchmove", handleTouchMove);
-    document.addEventListener("touchend", handleTouchEnd);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: false });
   }
 
   const dragStyle = {
@@ -122,6 +157,19 @@ export function FlashcardItem({
   };
 
   const opacity = Math.max(0.5, 1 - Math.abs(dragOffset.x) / 200);
+
+  function getBackgroundOverlay() {
+    if (Math.abs(dragOffset.x) < 10) return "";
+
+    const maxDrag = 150;
+    const intensity = Math.min(Math.abs(dragOffset.x) / maxDrag, 0.7);
+
+    if (dragOffset.x > 0) {
+      return `rgba(34, 197, 94, ${intensity})`;
+    } else {
+      return `rgba(239, 68, 68, ${intensity})`;
+    }
+  }
 
   return (
     <div
@@ -131,7 +179,7 @@ export function FlashcardItem({
         isFlipped ? flashcard.answer : flashcard.question
       }. Enterでフリップ、矢印キーでスワイプ`}
       className={cn(
-        "relative w-80 h-48 cursor-pointer select-none transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-xl",
+        "relative size-96 cursor-pointer select-none transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded",
         isDragging && "z-10",
         className
       )}
@@ -144,33 +192,70 @@ export function FlashcardItem({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
     >
-      {/* Card container with flip animation */}
       <div
         className={cn(
           "relative w-full h-full transition-transform duration-500 preserve-3d",
           isFlipped && "rotate-y-180"
         )}
       >
-        {/* Front side (Question) */}
         <div className="absolute inset-0 w-full h-full backface-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg p-6 flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-white text-lg font-medium leading-relaxed">
+          <div
+            className="w-full h-full bg-card rounded shadow-lg p-8 flex items-center justify-center relative overflow-hidden"
+            style={{
+              backgroundColor: getBackgroundOverlay() || undefined,
+              backgroundImage: getBackgroundOverlay()
+                ? "linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.9))"
+                : undefined,
+              backgroundBlendMode: getBackgroundOverlay()
+                ? "overlay"
+                : undefined,
+            }}
+          >
+            {getBackgroundOverlay() && (
+              <div
+                className="absolute inset-0 rounded"
+                style={{
+                  backgroundColor: getBackgroundOverlay(),
+                }}
+              />
+            )}
+            <div className="text-center relative z-10">
+              <p className="text-card-foreground text-xl font-medium leading-relaxed">
                 {flashcard.question}
               </p>
-              <p className="text-blue-100 text-sm mt-4">クリックで答えを表示</p>
+              <p className="text-muted-foreground text-sm mt-6">
+                クリックで答えを表示
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Back side (Answer) */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-          <div className="w-full h-full bg-gradient-to-br from-green-500 to-teal-600 rounded-xl shadow-lg p-6 flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-white text-lg font-medium leading-relaxed">
+          <div
+            className="w-full h-full bg-card rounded shadow-lg p-8 flex items-center justify-center relative overflow-hidden"
+            style={{
+              backgroundColor: getBackgroundOverlay() || undefined,
+              backgroundImage: getBackgroundOverlay()
+                ? "linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.9))"
+                : undefined,
+              backgroundBlendMode: getBackgroundOverlay()
+                ? "overlay"
+                : undefined,
+            }}
+          >
+            {getBackgroundOverlay() && (
+              <div
+                className="absolute inset-0 rounded"
+                style={{
+                  backgroundColor: getBackgroundOverlay(),
+                }}
+              />
+            )}
+            <div className="text-center relative z-10">
+              <p className="text-card-foreground text-xl font-medium leading-relaxed">
                 {flashcard.answer}
               </p>
-              <p className="text-green-100 text-sm mt-4">
+              <p className="text-muted-foreground text-sm mt-6">
                 クリックで質問に戻る
               </p>
             </div>
@@ -178,14 +263,13 @@ export function FlashcardItem({
         </div>
       </div>
 
-      {/* Swipe indicators */}
       {dragOffset.x > 50 && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold transform rotate-12">
+        <div className="absolute top-6 right-6 bg-white text-green-600 px-4 py-2 rounded-full text-base font-bold transform rotate-12 shadow-lg border-2 border-green-500">
           OK
         </div>
       )}
       {dragOffset.x < -50 && (
-        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold transform -rotate-12">
+        <div className="absolute top-6 left-6 bg-white text-red-600 px-4 py-2 rounded-full text-base font-bold transform -rotate-12 shadow-lg border-2 border-red-500">
           NG
         </div>
       )}

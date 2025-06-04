@@ -62,9 +62,6 @@ export default function ContentFlashcards() {
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           フラッシュカード学習
         </h1>
-        <p className="text-gray-600">
-          カードをクリックして表裏を確認し、理解度に応じてOK/NGを選択してください。
-        </p>
       </div>
 
       <FlashcardDeck flashcards={data.flashcards} />
