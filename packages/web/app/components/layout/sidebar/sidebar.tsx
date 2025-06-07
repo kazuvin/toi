@@ -10,6 +10,7 @@ import {
 import { Link } from "@remix-run/react";
 import useSWR from "swr";
 import { getSources } from "~/services/sources";
+import { Spinner } from "~/components/ui/spinner";
 
 type AccountInfoProps = ComponentPropsWithoutRef<"div"> & {
   isOpen: boolean;
@@ -74,7 +75,7 @@ function SidebarItem({
       )}
       <div
         className={cn(
-          "flex items-center h-8 text-sm font-medium whitespace-nowrap transition-opacity duration-300",
+          "flex items-center h-8 text-sm font-medium whitespace-nowrap transition-opacity duration-300 truncate",
           isOpen ? "opacity-100" : "opacity-0",
           renderIcon ? "" : "px-sm"
         )}
@@ -119,7 +120,7 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
         <div
           className={cn(
             "text-xl font-bold whitespace-nowrap transition-opacity duration-300",
-            !isOpen ? "opacity-0" : "opacity-100"
+            isOpen ? "opacity-100" : "opacity-0"
           )}
         >
           Toi
@@ -143,14 +144,28 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
       </div>
 
       <div className="flex flex-col gap-sm mt-lg">
-        <h2 className="text-xs px-sm pb-sm">最近の項目</h2>
+        <h2
+          className={cn(
+            "text-xs px-sm pb-sm truncate transition-opacity duration-300",
+            isOpen ? "opacity-100" : "opacity-0"
+          )}
+        >
+          最近の項目
+        </h2>
         {sources?.map((source) => (
           <SidebarItem
             key={source.id}
             isOpen={isOpen}
-            to={`/contents/${source.id}`}
+            to={`/content/${source.id}`}
           >
-            {source.content}
+            {source.title || (
+              <div className="flex items-center gap-md min-w-0">
+                <Spinner size="sm" className="flex-shrink-0" />
+                <span className="text-muted-foreground truncate">
+                  生成中...
+                </span>
+              </div>
+            )}
           </SidebarItem>
         ))}
       </div>

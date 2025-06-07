@@ -8,11 +8,7 @@ type MobileHeaderProps = ComponentPropsWithoutRef<"header"> & {
   onMenuClick: () => void;
 };
 
-export default function MobileHeader({
-  className,
-  onMenuClick,
-  ...props
-}: MobileHeaderProps) {
+function MobileHeader({ className, onMenuClick, ...props }: MobileHeaderProps) {
   return (
     <header
       className={cn(
@@ -32,3 +28,5 @@ export default function MobileHeader({
     </header>
   );
 }
+
+export default MobileHeader;
