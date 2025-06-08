@@ -4,7 +4,7 @@ import {
   InputMethodSelector,
   InputArea,
   ContentCreationHeader,
-  ContentCreationFooter,
+  PlanIndicator,
   ContentCreationButton,
   type InputMethod,
 } from "~/features/content/components";
@@ -33,6 +33,9 @@ export default function ContentNew() {
         <div className="w-full max-w-2xl space-y-8">
           {/* ヘッダー */}
           <ContentCreationHeader />
+
+          {/* プラン表示 */}
+          <PlanIndicator />
 
           {/* 入力方法カード */}
           <Card>
@@ -63,9 +66,6 @@ export default function ContentNew() {
             isLoading={isLoading}
             onClick={handleCreateContent}
           />
-
-          {/* フッター */}
-          <ContentCreationFooter />
         </div>
       </div>
     </div>

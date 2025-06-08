@@ -9,5 +9,5 @@ export { ContentInputSection } from "./content-input-section";
 export { InputMethodSelector, type InputMethod } from "./input-method-selector";
 export { InputArea } from "./input-area";
 export { ContentCreationHeader } from "./content-creation-header";
-export { ContentCreationFooter } from "./content-creation-footer";
+export { PlanIndicator } from "./plan-indicator";
 export { ContentCreationButton } from "./content-creation-button";

@@ -1,4 +1,4 @@
-export function ContentCreationFooter() {
+export function PlanIndicator() {
   return (
     <div className="text-center">
       <div className="inline-flex items-center gap-2 text-xs py-1 px-3 rounded-full bg-white/40 text-gray-500">
