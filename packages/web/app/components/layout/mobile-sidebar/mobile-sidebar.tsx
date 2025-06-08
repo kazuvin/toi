@@ -102,7 +102,9 @@ function MobileSidebar({
         {...props}
       >
         <div className="flex items-center justify-between gap-sm p-sm min-w-0">
-          <div className="text-xl font-bold truncate">Toi</div>
+          <div className="text-xl font-bold min-w-0 flex-1">
+            <span className="truncate">Toi</span>
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -131,7 +133,9 @@ function MobileSidebar({
         </div>
 
         <div className="flex flex-col gap-sm mt-lg min-w-0 flex-1 overflow-hidden">
-          <h2 className="text-xs px-sm pb-sm flex-shrink-0">最近の項目</h2>
+          <h2 className="text-xs px-sm pb-sm flex-shrink-0 min-w-0">
+            <span className="truncate">最近の項目</span>
+          </h2>
           <div className="flex flex-col gap-sm overflow-y-auto min-w-0">
             {sources?.map((source) => (
               <SidebarItem

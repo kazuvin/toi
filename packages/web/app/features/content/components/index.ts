@@ -6,3 +6,8 @@ export { ContentAddCard } from "./content-add-card";
 export { ContentDetail } from "./content-detail";
 export { ContentDetailTitle } from "./content-detail-title";
 export { ContentInputSection } from "./content-input-section";
+export { InputMethodSelector, type InputMethod } from "./input-method-selector";
+export { InputArea } from "./input-area";
+export { ContentCreationHeader } from "./content-creation-header";
+export { ContentCreationFooter } from "./content-creation-footer";
+export { ContentCreationButton } from "./content-creation-button";

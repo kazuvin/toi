@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner/spinner";
+import { Card } from "~/components/ui/card";
 
 export type ContentCardProps = {
   title: string;
@@ -18,7 +19,7 @@ export function ContentCard({
   to,
 }: ContentCardProps) {
   return (
-    <div className="h-64 p-6 rounded border border-border bg-card/30 backdrop-blur-sm flex flex-col">
+    <Card className="h-64 p-6 flex flex-col">
       {icon}
       <h3 className="font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
@@ -39,6 +40,6 @@ export function ContentCard({
           )}
         </Link>
       </Button>
-    </div>
+    </Card>
   );
 }

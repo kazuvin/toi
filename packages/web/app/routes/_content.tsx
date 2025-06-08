@@ -16,7 +16,7 @@ export default function ContentLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gradient-to-br from-pink-950/10 via-gray-100 to-violet-950/5">
+    <div className="flex h-screen items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
       <MobileHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
       <MobileSidebar
         isOpen={isMobileMenuOpen}

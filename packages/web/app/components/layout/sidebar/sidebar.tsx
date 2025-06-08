@@ -18,10 +18,10 @@ type AccountInfoProps = ComponentPropsWithoutRef<"div"> & {
 
 function AccountInfo({ isOpen }: AccountInfoProps) {
   return (
-    <div className="flex items-center gap-sm py-sm">
+    <div className="flex items-center gap-sm py-sm min-w-0">
       <Link
         to="/account"
-        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors"
+        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors flex-shrink-0"
       >
         <div className="size-4 flex items-center justify-center">
           <User className="size-4" />
@@ -29,7 +29,7 @@ function AccountInfo({ isOpen }: AccountInfoProps) {
       </Link>
       <div
         className={cn(
-          "text-xl font-bold whitespace-nowrap transition-opacity duration-300",
+          "transition-opacity duration-300 min-w-0 flex-1",
           !isOpen ? "opacity-0" : "opacity-100"
         )}
       >
@@ -55,7 +55,7 @@ function SidebarItem({
     <Link
       to={to}
       className={cn(
-        "flex items-center gap-sm",
+        "flex items-center gap-sm min-w-0",
         isOpen
           ? "hover:bg-muted-foreground/10 rounded-sm transition-colors"
           : ""
@@ -64,7 +64,7 @@ function SidebarItem({
       {renderIcon && (
         <div
           className={cn(
-            "p-2 rounded-sm transition-colors",
+            "p-2 rounded-sm transition-colors flex-shrink-0",
             isOpen ? "" : "hover:bg-muted-foreground/10"
           )}
         >
@@ -75,12 +75,12 @@ function SidebarItem({
       )}
       <div
         className={cn(
-          "flex items-center h-8 text-sm font-medium whitespace-nowrap transition-opacity duration-300 truncate",
+          "flex items-center h-8 text-sm transition-opacity duration-300 min-w-0 flex-1",
           isOpen ? "opacity-100" : "opacity-0",
           renderIcon ? "" : "px-sm"
         )}
       >
-        {children}
+        <span className="truncate">{children}</span>
       </div>
     </Link>
   );
@@ -104,10 +104,10 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
       )}
       {...props}
     >
-      <div className="flex items-center gap-sm py-sm">
+      <div className="flex items-center gap-sm py-sm min-w-0">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 hover:bg-muted-foreground/10 rounded-sm transition-colors"
+          className="p-2 hover:bg-muted-foreground/10 rounded-sm transition-colors flex-shrink-0"
         >
           <div className="size-4 flex items-center justify-center">
             {isOpen ? (
@@ -119,11 +119,11 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
         </button>
         <div
           className={cn(
-            "text-xl font-bold whitespace-nowrap transition-opacity duration-300",
+            "text-xl font-bold transition-opacity duration-300 min-w-0 flex-1",
             isOpen ? "opacity-100" : "opacity-0"
           )}
         >
-          Toi
+          <span className="truncate">Toi</span>
         </div>
       </div>
       <div className="flex flex-col gap-sm mt-md">
@@ -146,11 +146,11 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
       <div className="flex flex-col gap-sm mt-lg">
         <h2
           className={cn(
-            "text-xs px-sm pb-sm truncate transition-opacity duration-300",
+            "text-xs px-sm pb-sm transition-opacity duration-300 min-w-0",
             isOpen ? "opacity-100" : "opacity-0"
           )}
         >
-          最近の項目
+          <span className="truncate">最近の項目</span>
         </h2>
         {sources?.map((source) => (
           <SidebarItem
