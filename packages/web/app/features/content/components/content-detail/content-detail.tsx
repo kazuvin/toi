@@ -42,9 +42,9 @@ export function ContentDetail() {
       </div>
 
       <div className="flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-foreground">フラッシュカード</h2>
+        <h2 className="text-2xl font-bold text-foreground">学習コンテンツ</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ContentCard
             title="フラッシュカード"
             description="単語や概念を覚えるためのカード形式"

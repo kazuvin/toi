@@ -19,7 +19,7 @@ export function ContentCard({
   to,
 }: ContentCardProps) {
   return (
-    <Card className="h-64 p-6 flex flex-col">
+    <Card className={`h-64 p-6 flex flex-col ${isGenerating ? 'opacity-50 pointer-events-none' : ''}`}>
       {icon}
       <h3 className="font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-4">{description}</p>

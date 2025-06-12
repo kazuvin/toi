@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
+import { Confetti } from "../confetti";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
 type Props = {
@@ -105,6 +106,9 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   if (isCompleted) {
     return (
       <div className={cn("flex flex-col items-center space-y-6", className)}>
+        {/* 紙吹雪エフェクト */}
+        <Confetti active={showCelebration} />
+        
         {/* 100%完了の進捗表示 */}
         <div className="w-full max-w-md">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -115,25 +119,14 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className={cn(
-                "h-2 rounded-full transition-all duration-500",
-                showCelebration
-                  ? "bg-gradient-to-r from-green-400 to-blue-500 animate-pulse"
-                  : "bg-green-500"
-              )}
+              className="h-2 rounded-full bg-green-500"
               style={{ width: "100%" }}
             />
           </div>
         </div>
 
         {/* 完了メッセージ */}
-        <div
-          className={cn(
-            "text-center space-y-4 transition-all duration-500",
-            showCelebration && "animate-bounce"
-          )}
-        >
-          <div className="text-4xl mb-2">🎉</div>
+        <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
           <div className="space-y-2">
             <p className="text-lg text-gray-600">

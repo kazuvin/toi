@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { mutate } from "swr";
 import { useNavigate } from "@remix-run/react";
 import { toast } from "sonner";
 import { createSource } from "~/services/sources";
 import type { OutputFormatType } from "../use-output-formats";
+import { postFlashcard } from "~/services/flashcard";
+import { postTitle } from "~/services/source";
 
 export function useContentCreation() {
   const navigate = useNavigate();
@@ -18,11 +21,22 @@ export function useContentCreation() {
 
     setIsLoading(true);
     try {
+      // ソースを作成
       const response = await createSource({
         content,
         type: "TEXT",
       });
-      navigate(`/content/${response.id}`);
+
+      // ソースのタイトルを更新
+      await postTitle({ sourceId: response.id });
+
+      // フラッシュカードを作成
+      await postFlashcard({ sourceId: response.id });
+
+      // ソース一覧を更新
+      mutate("/api/sources");
+
+      navigate(`/content/${response.id}/flashcards`);
     } catch (error) {
       toast.error("学習コンテンツの作成に失敗しました");
       console.error(error);

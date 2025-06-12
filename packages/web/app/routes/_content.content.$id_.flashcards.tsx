@@ -3,9 +3,11 @@ import useSWR from "swr";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
 import { FlashcardDeck } from "~/features/flashcard/components";
 import { Spinner } from "~/components/ui/spinner";
+import { useContentDetail } from "~/features/content";
 
 export default function ContentFlashcards() {
   const { id } = useParams();
+  const { data: contentDetail } = useContentDetail(id);
 
   const { data, isLoading, error } = useSWR(
     id ? `/api/sources/${id}/flashcards` : null,
@@ -60,7 +62,7 @@ export default function ContentFlashcards() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          フラッシュカード学習
+          {contentDetail?.title ?? "タイトル未設定"}
         </h1>
       </div>
 

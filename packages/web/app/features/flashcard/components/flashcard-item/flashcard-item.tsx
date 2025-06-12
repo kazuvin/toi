@@ -211,6 +211,17 @@ export function FlashcardItem({
     return opacity;
   }
 
+  function getDynamicFontSize(text: string) {
+    const length = text.length;
+    
+    // 文字数に応じてフォントサイズを段階的に調整
+    if (length <= 30) return "text-xl leading-relaxed"; // 20px
+    if (length <= 60) return "text-lg leading-relaxed"; // 18px  
+    if (length <= 100) return "text-base leading-normal"; // 16px
+    if (length <= 150) return "text-sm leading-normal"; // 14px
+    return "text-xs leading-normal"; // 12px
+  }
+
   function CircularProgress({
     progress,
     color,
@@ -290,7 +301,12 @@ export function FlashcardItem({
           isFlipped && "rotate-y-180"
         )}
       >
-        <div className="absolute inset-0 w-full h-full backface-hidden">
+        <div 
+          className={cn(
+            "absolute inset-0 w-full h-full backface-hidden",
+            isFlipped ? "z-0" : "z-10"
+          )}
+        >
           <div
             className="w-full h-full bg-card rounded shadow-lg p-8 flex flex-col relative overflow-hidden"
             style={{
@@ -338,7 +354,10 @@ export function FlashcardItem({
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center relative z-10">
                 <p
-                  className="text-card-foreground text-xl font-medium leading-relaxed"
+                  className={cn(
+                    "text-card-foreground font-medium",
+                    getDynamicFontSize(flashcard.question)
+                  )}
                   style={{ opacity: getOpacity() }}
                 >
                   {flashcard.question}
@@ -367,7 +386,12 @@ export function FlashcardItem({
           </div>
         </div>
 
-        <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
+        <div 
+          className={cn(
+            "absolute inset-0 w-full h-full backface-hidden rotate-y-180",
+            isFlipped ? "z-10" : "z-0"
+          )}
+        >
           <div
             className="w-full h-full bg-card rounded shadow-lg p-8 flex flex-col relative overflow-hidden"
             style={{
@@ -415,7 +439,10 @@ export function FlashcardItem({
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center relative z-10">
                 <p
-                  className="text-card-foreground text-xl font-medium leading-relaxed"
+                  className={cn(
+                    "text-card-foreground font-medium",
+                    getDynamicFontSize(flashcard.answer)
+                  )}
                   style={{ opacity: getOpacity() }}
                 >
                   {flashcard.answer}
