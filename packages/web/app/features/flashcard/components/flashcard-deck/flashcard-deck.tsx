@@ -105,11 +105,12 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
   if (isCompleted) {
     return (
-      <div className={cn("flex flex-col items-center space-y-6", className)}>
+      <>
         {/* 紙吹雪エフェクト */}
         <Confetti active={showCelebration} />
         
-        {/* 100%完了の進捗表示 */}
+        <div className={cn("flex flex-col items-center space-y-6", className)}>
+          {/* 100%完了の進捗表示 */}
         <div className="w-full max-w-md">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>
@@ -154,7 +155,8 @@ export function FlashcardDeck({ flashcards, className }: Props) {
         >
           もう一度学習する
         </Button>
-      </div>
+        </div>
+      </>
     );
   }
 
