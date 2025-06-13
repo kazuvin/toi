@@ -49,6 +49,7 @@ npm run test:api:coverage    # Run API tests with coverage
 - Layout components in `/packages/web/app/components/layout/`
 - Each component includes: component.tsx, index.ts, stories.tsx, test.tsx
 - API services in `/packages/web/app/services/` with type-safe HTTP calls
+- **Data Fetching**: Use `clientLoader` for client-side data fetching (SPA mode requires client-side data loading)
 
 ### Shared Package
 - Zod schemas for API request/response validation
@@ -70,6 +71,16 @@ npm run test:api:coverage    # Run API tests with coverage
 - Follow existing directory structure with index.ts exports
 - Create Storybook stories for UI components
 - Write tests for hooks and utilities
+
+### Data Fetching in Routes
+- **IMPORTANT**: This project uses Remix SPA mode (`ssr: false`)
+- Use `clientLoader` instead of `loader` for data fetching in routes
+- Server-side `loader` functions are not available in SPA mode
+- All data fetching must be done on the client side
+- **Preferred Method**: Use SWR for data fetching in components and routes
+  - Example: `const { data, isLoading, error } = useSWR("/api/endpoint", fetcherFunction)`
+  - SWR provides caching, revalidation, and error handling
+  - Use consistent cache keys across components for data sharing
 
 ## Commit Message Rules
 Use Japanese commit messages with conventional format:

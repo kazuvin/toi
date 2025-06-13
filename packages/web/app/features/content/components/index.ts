@@ -11,3 +11,4 @@ export { InputArea } from "./input-area";
 export { ContentCreationHeader } from "./content-creation-header";
 export { PlanIndicator } from "./plan-indicator";
 export { ContentCreationButton } from "./content-creation-button";
+export { ContentList, type ContentListProps } from "./content-list";
