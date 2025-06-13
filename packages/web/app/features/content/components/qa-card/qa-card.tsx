@@ -127,7 +127,7 @@ export function QaCard() {
             rows={4}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="flex min-h-[100px] w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-none"
+            className="flex min-h-[100px] w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base shadow-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-none"
           />
         </div>
 
