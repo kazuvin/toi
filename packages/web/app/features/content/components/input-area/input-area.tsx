@@ -43,7 +43,7 @@ export function InputArea({
             )}
             <textarea
               placeholder="学習したい内容を入力してください..."
-              className="w-full h-full p-6 pr-4 sm:pr-28 resize-none text-sm focus:outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+              className="w-full h-full p-6 pr-4 sm:pr-28 resize-none text-base focus:outline-none text-gray-700 placeholder-gray-400 bg-transparent"
               value={inputText}
               onChange={(e) => onInputTextChange(e.target.value)}
             />
@@ -54,7 +54,7 @@ export function InputArea({
           <div className="w-full h-64 rounded-lg border border-gray-200 bg-white/90 backdrop-blur-sm shadow-sm overflow-hidden">
             {inputText ? (
               <textarea
-                className="w-full h-full p-6 resize-none focus:outline-none bg-transparent text-gray-700 placeholder-gray-400"
+                className="w-full h-full p-6 resize-none focus:outline-none bg-transparent text-base text-gray-700 placeholder-gray-400"
                 value={inputText}
                 onChange={(e) => onInputTextChange(e.target.value)}
                 placeholder="ファイルの内容がここに表示されます..."
