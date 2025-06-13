@@ -1,30 +1,11 @@
 import { Link } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { ContentList } from "~/features/content/components/content-list";
 import { getSources } from "~/services/sources";
 import { Button } from "~/components/ui/button";
-import { GetSourcesResponse } from "@toi/shared/src/schemas/source";
 
 export default function ContentsPage() {
-  const [sources, setSources] = useState<GetSourcesResponse>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadSources = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getSources();
-        setSources(data);
-      } catch (error) {
-        console.error("Failed to load sources:", error);
-        setSources([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadSources();
-  }, []);
+  const { data: sources = [], isLoading } = useSWR("/api/sources", getSources);
 
   return (
     <div className="container mx-auto px-4 py-8">
