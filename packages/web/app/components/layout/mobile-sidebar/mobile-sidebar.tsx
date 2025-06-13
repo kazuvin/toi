@@ -1,5 +1,5 @@
 import { cn } from "~/lib/utils";
-import { ComponentPropsWithoutRef } from "react";
+import { ComponentPropsWithoutRef, useEffect } from "react";
 import { User, X, MessageSquare, PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
@@ -72,6 +72,20 @@ function MobileSidebar({
   ...props
 }: MobileSidebarProps) {
   const { data: sources } = useSWR("/api/sources", getSources);
+
+  // モバイルサイドバーが開いている時はbodyのスクロールを無効化
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // クリーンアップ関数でスクロールを復元
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   return (
     <>
