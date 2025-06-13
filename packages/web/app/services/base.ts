@@ -3,7 +3,7 @@ import { API_URL } from "~/config";
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type RequestOptions<
-  BODY extends Record<string, any> = Record<string, any>,
+  BODY extends Record<string, unknown> = Record<string, unknown>,
   PARAMS extends Record<
     string,
     string | string[] | number | number[] | boolean | undefined | null
@@ -81,13 +81,13 @@ export const api = {
   get<T>(url: string, options?: RequestOptions): Promise<T> {
     return baseFetch<T>(url, { ...options, method: "GET" });
   },
-  post<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+  post<T>(url: string, body?: Record<string, unknown>, options?: RequestOptions): Promise<T> {
     return baseFetch<T>(url, { ...options, method: "POST", body });
   },
-  put<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+  put<T>(url: string, body?: Record<string, unknown>, options?: RequestOptions): Promise<T> {
     return baseFetch<T>(url, { ...options, method: "PUT", body });
   },
-  patch<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+  patch<T>(url: string, body?: Record<string, unknown>, options?: RequestOptions): Promise<T> {
     return baseFetch<T>(url, { ...options, method: "PATCH", body });
   },
   delete<T>(url: string, options?: RequestOptions): Promise<T> {

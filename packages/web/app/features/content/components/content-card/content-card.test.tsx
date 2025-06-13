@@ -34,7 +34,9 @@ describe("ContentCard", () => {
     renderContentCard({ isGenerating: true });
 
     expect(screen.getByText("生成中...")).toBeInTheDocument();
-    expect(screen.getByRole("link")).toHaveAttribute("aria-disabled", "true");
+    // 生成中の時はリンクとしてレンダリングされるがdisabledになる
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("disabled", "");
   });
 
   it("正しいリンク先が設定される", () => {

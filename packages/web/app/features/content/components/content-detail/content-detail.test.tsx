@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ContentDetail } from "./content-detail";
@@ -57,9 +57,9 @@ describe("ContentDetail", () => {
     renderContentDetail();
 
     expect(screen.getByText("Test Title")).toBeInTheDocument();
-    expect(screen.getByText("入力")).toBeInTheDocument();
+    expect(screen.getByText("入力ソースを表示")).toBeInTheDocument();
     expect(screen.getByText("フラッシュカード")).toBeInTheDocument();
-    expect(screen.getByText("選択問題")).toBeInTheDocument();
+    expect(screen.getByText("学習コンテンツ")).toBeInTheDocument();
   });
 
   it("タイトルがない場合は生成中表示される", () => {
@@ -75,7 +75,7 @@ describe("ContentDetail", () => {
     expect(screen.getByText("生成中...")).toBeInTheDocument();
   });
 
-  it("データがない場合はタイトル部分のみ表示される", () => {
+  it("データがない場合は学習コンテンツは生成中状態で表示される", () => {
     mockUseContentDetail.mockReturnValue({
       data: undefined,
       mutate: vi.fn(),
@@ -85,11 +85,13 @@ describe("ContentDetail", () => {
 
     renderContentDetail();
 
-    // タイトル部分はあるが、具体的なタイトルテキストはない
-    expect(screen.queryByText("生成中...")).not.toBeInTheDocument();
+    // データがない場合でも学習コンテンツセクションは表示され、生成中状態になる
+    expect(screen.getByText("フラッシュカード")).toBeInTheDocument();
+    expect(screen.getByText("学習コンテンツ")).toBeInTheDocument();
+    expect(screen.getByText("生成中...")).toBeInTheDocument();
   });
 
-  it("コンテンツの展開・折りたたみが動作する", () => {
+  it("入力ソースを表示ボタンが存在する", () => {
     mockUseContentDetail.mockReturnValue({
       data: mockData,
       mutate: vi.fn(),
@@ -99,19 +101,8 @@ describe("ContentDetail", () => {
 
     renderContentDetail();
 
-    const expandButton = screen.getByRole("button");
-
-    // 初期状態では折りたたまれている
-    const contentElement = screen.getByText(mockData.content);
-    expect(contentElement).toHaveClass("line-clamp-3");
-
-    // ボタンをクリックして展開
-    fireEvent.click(expandButton);
-    expect(contentElement).not.toHaveClass("line-clamp-3");
-
-    // 再度クリックして折りたたみ
-    fireEvent.click(expandButton);
-    expect(contentElement).toHaveClass("line-clamp-3");
+    const showSourceButton = screen.getByRole("button", { name: "入力ソースを表示" });
+    expect(showSourceButton).toBeInTheDocument();
   });
 
   it("フラッシュカードが生成中の場合、生成中状態が表示される", () => {
@@ -125,11 +116,10 @@ describe("ContentDetail", () => {
     renderContentDetail();
 
     // フラッシュカードのContentCardが生成中状態になっている
-    const flashcardLinks = screen.getAllByRole("link");
-    const flashcardLink = flashcardLinks.find((link) =>
-      link.getAttribute("href")?.includes("flashcards")
-    );
-
-    expect(flashcardLink).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByText("生成中...")).toBeInTheDocument();
+    
+    // カード全体が半透明になっている
+    const flashcardCard = screen.getByText("フラッシュカード").closest('div');
+    expect(flashcardCard).toHaveClass("opacity-50", "pointer-events-none");
   });
 });

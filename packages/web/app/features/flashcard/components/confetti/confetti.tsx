@@ -67,7 +67,7 @@ export function Confetti({ active, className }: Props) {
           .map((piece) => {
             let newPhase = piece.phase;
             let newVelocityX = piece.velocityX;
-            let newVelocityY = piece.velocityY + piece.gravity; // 重力を適用
+            const newVelocityY = piece.velocityY + piece.gravity; // 重力を適用
             
             // 上昇から落下への切り替え
             if (piece.phase === 'launch' && newVelocityY >= 0) {
