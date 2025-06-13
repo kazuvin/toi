@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { cn } from "~/lib/utils";
 
 type ConfettiPiece = {
@@ -23,12 +23,21 @@ type Props = {
 
 export function Confetti({ active, className }: Props) {
   const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!active) {
       setPieces([]);
       return;
     }
+
+    // コンテナのサイズを取得（レイアウトシフト防止）
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const centerX = containerRect.width / 2;
+    const containerHeight = containerRect.height;
 
     // カラフルな色の配列
     const colors = [
@@ -38,14 +47,13 @@ export function Confetti({ active, className }: Props) {
 
     // 紙吹雪の生成（画面下から打ち上げ）
     const newPieces: ConfettiPiece[] = [];
-    const centerX = window.innerWidth / 2;
     
     for (let i = 0; i < 50; i++) {
       const initialVelocityY = -15 - Math.random() * 10; // 強い上向きの初速
       newPieces.push({
         id: i,
         x: centerX + (Math.random() - 0.5) * 200, // 中央から左右に散らばる
-        y: window.innerHeight + 10, // 画面下から開始
+        y: containerHeight + 10, // 画面下から開始
         rotation: Math.random() * 360,
         scale: 0.5 + Math.random() * 0.5,
         color: colors[Math.floor(Math.random() * colors.length)],
@@ -60,7 +68,8 @@ export function Confetti({ active, className }: Props) {
 
     setPieces(newPieces);
 
-    // アニメーションループ
+    // アニメーションループ（requestAnimationFrameを使用してレイアウトシフトを防止）
+    let animationId: number;
     const animateConfetti = () => {
       setPieces((currentPieces) => {
         return currentPieces
@@ -91,20 +100,22 @@ export function Confetti({ active, className }: Props) {
               phase: newPhase,
             };
           })
-          .filter((piece) => piece.y < window.innerHeight + 100); // 画面外に出たら削除
+          .filter((piece) => piece.y < containerHeight + 100); // 画面外に出たら削除
       });
+      
+      animationId = requestAnimationFrame(animateConfetti);
     };
 
-    const interval = setInterval(animateConfetti, 16); // 60FPS
+    animationId = requestAnimationFrame(animateConfetti);
 
     // 7秒後に自動クリア（打ち上げ効果を十分楽しめるように）
     const timeout = setTimeout(() => {
       setPieces([]);
-      clearInterval(interval);
+      cancelAnimationFrame(animationId);
     }, 7000);
 
     return () => {
-      clearInterval(interval);
+      cancelAnimationFrame(animationId);
       clearTimeout(timeout);
     };
   }, [active]);
@@ -114,7 +125,14 @@ export function Confetti({ active, className }: Props) {
   }
 
   return (
-    <div className={cn("fixed inset-0 pointer-events-none z-50", className)}>
+    <div 
+      ref={containerRef}
+      className={cn("fixed inset-0 pointer-events-none z-50", className)}
+      style={{ 
+        willChange: 'transform',
+        contain: 'layout style paint'
+      }}
+    >
       {pieces.map((piece) => (
         <div
           key={piece.id}
@@ -125,6 +143,7 @@ export function Confetti({ active, className }: Props) {
             transform: `rotate(${piece.rotation}deg) scale(${piece.scale})`,
             backgroundColor: piece.color,
             borderRadius: "2px",
+            willChange: 'transform',
           }}
         />
       ))}
