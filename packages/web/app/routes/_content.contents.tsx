@@ -1,21 +1,30 @@
-import { json } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { Link } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { ContentList } from "~/features/content/components/content-list";
 import { getSources } from "~/services/sources";
 import { Button } from "~/components/ui/button";
-
-export async function loader() {
-  try {
-    const sources = await getSources();
-    return json({ sources });
-  } catch (error) {
-    console.error("Failed to load sources:", error);
-    return json({ sources: [] });
-  }
-}
+import { GetSourcesResponse } from "@toi/shared/src/schemas/source";
 
 export default function ContentsPage() {
-  const { sources } = useLoaderData<typeof loader>();
+  const [sources, setSources] = useState<GetSourcesResponse>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSources = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getSources();
+        setSources(data);
+      } catch (error) {
+        console.error("Failed to load sources:", error);
+        setSources([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSources();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -30,7 +39,7 @@ export default function ContentsPage() {
           <Link to="/content/new">新しいコンテンツを作る</Link>
         </Button>
       </div>
-      <ContentList contents={sources} />
+      <ContentList contents={sources} isLoading={isLoading} />
     </div>
   );
 }
