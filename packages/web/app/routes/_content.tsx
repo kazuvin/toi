@@ -23,7 +23,7 @@ export default function ContentLayout() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
       <Sidebar />
-      <main className="flex flex-col flex-1 overflow-y-auto scrollbar-custom h-screen px-lg pt-global-header-height md:pt-0">
+      <main className="flex flex-col flex-1 overflow-y-auto scrollbar-custom h-screen px-4 md:px-lg pt-global-header-height md:pt-0 touch-pan-y">
         <Outlet />
       </main>
     </div>
