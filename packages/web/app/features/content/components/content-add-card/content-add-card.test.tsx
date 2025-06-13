@@ -15,9 +15,9 @@ describe("ContentAddCard", () => {
   });
 
   it("Plusアイコンが表示される", () => {
-    render(<ContentAddCard {...mockProps} />);
+    const { container } = render(<ContentAddCard {...mockProps} />);
 
-    const plusIcon = screen.getByRole("generic", { hidden: true });
+    const plusIcon = container.querySelector('.lucide-plus');
     expect(plusIcon).toBeInTheDocument();
   });
 

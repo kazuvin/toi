@@ -8,18 +8,22 @@ declare module "@remix-run/node" {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
-    remix({
-      ssr: false,
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_singleFetch: true,
-        v3_lazyRouteDiscovery: true,
-      },
-    }),
+    ...(mode !== "test"
+      ? [
+          remix({
+            ssr: false,
+            future: {
+              v3_fetcherPersist: true,
+              v3_relativeSplatPath: true,
+              v3_throwAbortReason: true,
+              v3_singleFetch: true,
+              v3_lazyRouteDiscovery: true,
+            },
+          }),
+        ]
+      : []),
     tsconfigPaths(),
   ],
   test: {
@@ -27,4 +31,4 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./app/test/setup.ts"],
   },
-});
+}));
