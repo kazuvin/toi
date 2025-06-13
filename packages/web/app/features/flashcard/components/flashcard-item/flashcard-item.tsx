@@ -281,7 +281,7 @@ export function FlashcardItem({
         isFlipped ? flashcard.answer : flashcard.question
       }. Enterでフリップ、矢印キーでスワイプ`}
       className={cn(
-        "relative w-80 aspect-square cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded",
+        "relative w-80 aspect-square cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded touch-pan-y",
         isDragging && "z-10",
         // アニメーション戻り時のみtransition適用
         isAnimatingBack && "transition-transform duration-300",

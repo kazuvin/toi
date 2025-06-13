@@ -29,21 +29,21 @@ export function InputArea({
     switch (inputMethod) {
       case "text":
         return (
-          <div className="w-full h-64 rounded-lg border border-gray-200 bg-white/90 backdrop-blur-sm shadow-sm overflow-hidden relative">
+          <div className="w-full h-64 rounded-lg border border-gray-200 bg-white/90 backdrop-blur-sm shadow-sm overflow-hidden relative touch-pan-y">
             {!inputText && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePasteFromClipboard}
-                className="absolute top-4 right-4 z-10"
+                className="absolute top-4 right-4 z-10 hidden sm:flex"
               >
-                <Clipboard className="w-4 h-4" />
-                クリップボードからペースト
+                <Clipboard className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">クリップボードからペースト</span>
               </Button>
             )}
             <textarea
               placeholder="学習したい内容を入力してください..."
-              className="w-full h-full p-6 pr-28 resize-none text-sm focus:outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+              className="w-full h-full p-6 pr-4 sm:pr-28 resize-none text-sm focus:outline-none text-gray-700 placeholder-gray-400 bg-transparent"
               value={inputText}
               onChange={(e) => onInputTextChange(e.target.value)}
             />
