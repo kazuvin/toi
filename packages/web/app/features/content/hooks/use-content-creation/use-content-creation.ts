@@ -2,7 +2,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import { useNavigate } from "@remix-run/react";
 import { toast } from "sonner";
-import { createSource, createSourceFromUrl } from "~/services/sources";
+import { createSource, createSourceFromUrl, createSourceFromPdf } from "~/services/sources";
 import type { OutputFormatType } from "../use-output-formats";
 import { postFlashcard } from "~/services/flashcard";
 import { postTitle } from "~/services/source";
@@ -14,7 +14,8 @@ export function useContentCreation() {
   const createContent = async (
     content: string,
     selectedFormats: OutputFormatType[],
-    inputMethod: "text" | "file" | "website" | "youtube" = "text"
+    inputMethod: "text" | "file" | "website" | "youtube" | "pdf" = "text",
+    pdfData?: { fileName: string; fileContent: string }
   ) => {
     if (!content || selectedFormats.length === 0) {
       return;
@@ -28,6 +29,12 @@ export function useContentCreation() {
       if (inputMethod === "website") {
         // URLからソースを作成
         response = await createSourceFromUrl({ url: content });
+      } else if (inputMethod === "pdf" && pdfData) {
+        // PDFからソースを作成
+        response = await createSourceFromPdf({
+          fileName: pdfData.fileName,
+          fileContent: pdfData.fileContent,
+        });
       } else {
         // テキストまたはファイルからソースを作成
         response = await createSource({
@@ -53,6 +60,8 @@ export function useContentCreation() {
       if (error instanceof Error) {
         if (error.message.includes("URL")) {
           errorMessage = "URLからコンテンツを取得できませんでした。URLが正しいか確認してください。";
+        } else if (error.message.includes("PDF")) {
+          errorMessage = "PDFファイルの処理に失敗しました。ファイルが正しいか確認してください。";
         } else if (error.message.includes("network")) {
           errorMessage = "ネットワークエラーが発生しました。インターネット接続を確認してください。";
         }

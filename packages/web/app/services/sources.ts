@@ -6,6 +6,7 @@ import {
   PostSourceBody,
   PostSourceDetailResponse,
   PostSourceFromUrlBody,
+  PostSourceFromPdfBody,
 } from "@toi/shared/src/schemas/source";
 import { api } from "./base";
 
@@ -27,4 +28,8 @@ export const createSource = async (body: PostSourceBody) => {
 
 export const createSourceFromUrl = async (body: PostSourceFromUrlBody) => {
   return api.post<PostSourceDetailResponse>("/sources/url", body);
+};
+
+export const createSourceFromPdf = async (body: PostSourceFromPdfBody) => {
+  return api.post<PostSourceDetailResponse>("/sources/pdf", body);
 };

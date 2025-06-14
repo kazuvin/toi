@@ -57,6 +57,14 @@ export const PostSourceFromUrlBodySchema = z.object({
 });
 
 /**
+ * PDF からソース作成 (POST) のリクエストボディスキーマ
+ */
+export const PostSourceFromPdfBodySchema = z.object({
+  fileName: z.string(),
+  fileContent: z.string(), // base64 encoded PDF content
+});
+
+/**
  * ソース作成 (POST) のリクエストボディの型
  */
 export type PostSourceBody = z.infer<typeof PostSourceBodySchema>;
@@ -65,6 +73,11 @@ export type PostSourceBody = z.infer<typeof PostSourceBodySchema>;
  * URL からソース作成 (POST) のリクエストボディの型
  */
 export type PostSourceFromUrlBody = z.infer<typeof PostSourceFromUrlBodySchema>;
+
+/**
+ * PDF からソース作成 (POST) のリクエストボディの型
+ */
+export type PostSourceFromPdfBody = z.infer<typeof PostSourceFromPdfBodySchema>;
 
 /**
  * ソース作成 (POST) のレスポンススキーマ

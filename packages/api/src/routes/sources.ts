@@ -18,6 +18,7 @@ import {
 } from "@toi/shared/src/schemas/source";
 import { ZodError } from "zod";
 import urlRoute from "./sources/url";
+import pdfRoute from "./sources/pdf";
 
 type Bindings = {
   DB: D1Database;
@@ -125,5 +126,6 @@ app
   });
 
 app.route("/url", urlRoute);
+app.route("/pdf", pdfRoute);
 
 export default app;

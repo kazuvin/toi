@@ -18,13 +18,36 @@ export const meta: MetaFunction = () => {
 
 export default function ContentNew() {
   const [inputMethod, setInputMethod] = useState<InputMethod>("text");
+  const [pdfData, setPdfData] = useState<{ fileName: string; fileContent: string } | null>(null);
 
   const { inputText, setInputText, handleFileUpload } = useFileHandler();
   const { isLoading, createContent } = useContentCreation();
 
+  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      const base64Content = result.split(',')[1]; // Remove data:application/pdf;base64, prefix
+      
+      setPdfData({
+        fileName: file.name,
+        fileContent: base64Content,
+      });
+      
+      setInputText(`PDFファイル: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCreateContent = async () => {
-    // TODO: 出力形式を選択できるようにする
-    await createContent(inputText, ["flashcard"], inputMethod);
+    if (inputMethod === "pdf" && pdfData) {
+      await createContent(inputText, ["flashcard"], inputMethod, pdfData);
+    } else {
+      await createContent(inputText, ["flashcard"], inputMethod);
+    }
   };
 
   return (
@@ -56,6 +79,7 @@ export default function ContentNew() {
                 inputText={inputText}
                 onInputTextChange={setInputText}
                 onFileUpload={handleFileUpload}
+                onPdfUpload={handlePdfUpload}
               />
             </CardContent>
           </Card>
