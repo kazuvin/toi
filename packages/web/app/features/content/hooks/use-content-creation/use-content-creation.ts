@@ -2,7 +2,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import { useNavigate } from "@remix-run/react";
 import { toast } from "sonner";
-import { createSource, createSourceFromUrl, createSourceFromPdf } from "~/services/sources";
+import { createSource, createSourceFromUrl, createSourceFromPdf, createSourceFromYoutube } from "~/services/sources";
 import type { OutputFormatType } from "../use-output-formats";
 import { postFlashcard } from "~/services/flashcard";
 import { postTitle } from "~/services/source";
@@ -15,7 +15,8 @@ export function useContentCreation() {
     content: string,
     selectedFormats: OutputFormatType[],
     inputMethod: "text" | "file" | "website" | "youtube" | "pdf" = "text",
-    pdfData?: { fileName: string; fileContent: string }
+    pdfData?: { fileName: string; fileContent: string },
+    youtubeData?: { url: string }
   ) => {
     if (!content || selectedFormats.length === 0) {
       return;
@@ -35,6 +36,9 @@ export function useContentCreation() {
           fileName: pdfData.fileName,
           fileContent: pdfData.fileContent,
         });
+      } else if (inputMethod === "youtube" && youtubeData) {
+        // YouTubeからソースを作成
+        response = await createSourceFromYoutube({ url: youtubeData.url });
       } else {
         // テキストまたはファイルからソースを作成
         response = await createSource({
@@ -62,6 +66,8 @@ export function useContentCreation() {
           errorMessage = "URLからコンテンツを取得できませんでした。URLが正しいか確認してください。";
         } else if (error.message.includes("PDF")) {
           errorMessage = "PDFファイルの処理に失敗しました。ファイルが正しいか確認してください。";
+        } else if (error.message.includes("YouTube")) {
+          errorMessage = "YouTube動画の処理に失敗しました。URLが正しいか確認してください。";
         } else if (error.message.includes("network")) {
           errorMessage = "ネットワークエラーが発生しました。インターネット接続を確認してください。";
         }

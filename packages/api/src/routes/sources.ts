@@ -19,6 +19,7 @@ import {
 import { ZodError } from "zod";
 import urlRoute from "./sources/url";
 import pdfRoute from "./sources/pdf";
+import youtubeRoute from "./sources/youtube";
 
 type Bindings = {
   DB: D1Database;
@@ -127,5 +128,6 @@ app
 
 app.route("/url", urlRoute);
 app.route("/pdf", pdfRoute);
+app.route("/youtube", youtubeRoute);
 
 export default app;

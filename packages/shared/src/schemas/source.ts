@@ -65,6 +65,13 @@ export const PostSourceFromPdfBodySchema = z.object({
 });
 
 /**
+ * YouTube からソース作成 (POST) のリクエストボディスキーマ
+ */
+export const PostSourceFromYoutubeBodySchema = z.object({
+  url: z.string().url(),
+});
+
+/**
  * ソース作成 (POST) のリクエストボディの型
  */
 export type PostSourceBody = z.infer<typeof PostSourceBodySchema>;
@@ -78,6 +85,11 @@ export type PostSourceFromUrlBody = z.infer<typeof PostSourceFromUrlBodySchema>;
  * PDF からソース作成 (POST) のリクエストボディの型
  */
 export type PostSourceFromPdfBody = z.infer<typeof PostSourceFromPdfBodySchema>;
+
+/**
+ * YouTube からソース作成 (POST) のリクエストボディの型
+ */
+export type PostSourceFromYoutubeBody = z.infer<typeof PostSourceFromYoutubeBodySchema>;
 
 /**
  * ソース作成 (POST) のレスポンススキーマ

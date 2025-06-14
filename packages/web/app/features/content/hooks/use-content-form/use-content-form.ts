@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { InputMethod } from "~/features/content/components";
 import type { PdfData } from "../use-pdf-handler";
+import type { YoutubeData } from "../use-youtube-handler";
 
 export function useContentForm() {
   const [inputMethod, setInputMethod] = useState<InputMethod>("text");
@@ -19,9 +20,10 @@ export function useContentForm() {
     setInputText(`PDFファイル: ${fileName} (${fileSize} KB)`);
   };
 
-  const isFormValid = (pdfData?: PdfData | null) => {
+  const isFormValid = (pdfData?: PdfData | null, youtubeData?: YoutubeData | null) => {
     if (!inputText) return false;
     if (inputMethod === "pdf" && !pdfData) return false;
+    if (inputMethod === "youtube" && !youtubeData) return false;
     return true;
   };
 
