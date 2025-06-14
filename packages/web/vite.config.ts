@@ -21,11 +21,23 @@ export default defineConfig(({ mode }) => ({
               v3_singleFetch: true,
               v3_lazyRouteDiscovery: true,
             },
+            ignoredRouteFiles: ["**/*.test.{js,jsx,ts,tsx}"],
           }),
         ]
       : []),
     tsconfigPaths(),
   ],
+  build: {
+    rollupOptions: {
+      external: (id) => {
+        // テストファイルとVitest関連をビルドから除外
+        return id.includes('.test.') || 
+               id.includes('vitest') || 
+               id.includes('@testing-library') ||
+               id.includes('@vitest');
+      },
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",

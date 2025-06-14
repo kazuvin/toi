@@ -1,0 +1,1 @@
+export { usePdfHandler, type PdfData } from "./use-pdf-handler";
