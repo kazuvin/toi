@@ -31,15 +31,6 @@ export default function ContentFlashcards() {
     }
   }, [error]);
 
-  // フラッシュカードがない場合の通知
-  useEffect(() => {
-    if (data && (!data.flashcards || data.flashcards.length === 0)) {
-      toast.info("このコンテンツにはまだフラッシュカードが作成されていません。", {
-        duration: 4000,
-      });
-    }
-  }, [data]);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
