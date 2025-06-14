@@ -6,43 +6,41 @@ import {
   ContentCreationHeader,
   PlanIndicator,
   ContentCreationButton,
-  type InputMethod,
 } from "~/features/content/components";
-import { useFileHandler } from "~/features/content/hooks/use-file-handler";
-import { useContentCreation } from "~/features/content/hooks/use-content-creation";
-import { useState } from "react";
+import { 
+  useFileHandler,
+  useContentCreation,
+  usePdfHandler,
+  useContentForm,
+} from "~/features/content/hooks";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Toi" }, { name: "description", content: "Toi" }];
 };
 
 export default function ContentNew() {
-  const [inputMethod, setInputMethod] = useState<InputMethod>("text");
-  const [pdfData, setPdfData] = useState<{ fileName: string; fileContent: string } | null>(null);
-
-  const { inputText, setInputText, handleFileUpload } = useFileHandler();
+  const { handleFileUpload } = useFileHandler();
   const { isLoading, createContent } = useContentCreation();
+  const { pdfData, handlePdfUpload } = usePdfHandler();
+  const {
+    inputMethod,
+    inputText,
+    handleInputMethodChange,
+    handleInputTextChange,
+    updateInputTextFromPdf,
+    isFormValid,
+  } = useContentForm();
 
-  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      const base64Content = result.split(',')[1]; // Remove data:application/pdf;base64, prefix
-      
-      setPdfData({
-        fileName: file.name,
-        fileContent: base64Content,
-      });
-      
-      setInputText(`PDFファイル: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
-    };
-    reader.readAsDataURL(file);
+  const handlePdfFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileInfo = handlePdfUpload(event);
+    if (fileInfo) {
+      updateInputTextFromPdf(fileInfo.fileName, fileInfo.fileSize);
+    }
   };
 
   const handleCreateContent = async () => {
+    if (!isFormValid(pdfData)) return;
+
     if (inputMethod === "pdf" && pdfData) {
       await createContent(inputText, ["flashcard"], inputMethod, pdfData);
     } else {
@@ -70,23 +68,23 @@ export default function ContentNew() {
             <CardContent className="space-y-4">
               <InputMethodSelector
                 selectedMethod={inputMethod}
-                onMethodChange={setInputMethod}
+                onMethodChange={handleInputMethodChange}
               />
 
               {/* 入力エリア */}
               <InputArea
                 inputMethod={inputMethod}
                 inputText={inputText}
-                onInputTextChange={setInputText}
+                onInputTextChange={handleInputTextChange}
                 onFileUpload={handleFileUpload}
-                onPdfUpload={handlePdfUpload}
+                onPdfUpload={handlePdfFileUpload}
               />
             </CardContent>
           </Card>
 
           {/* 生成ボタン */}
           <ContentCreationButton
-            disabled={!inputText || isLoading}
+            disabled={!isFormValid(pdfData) || isLoading}
             isLoading={isLoading}
             onClick={handleCreateContent}
           />
