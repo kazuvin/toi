@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
@@ -52,6 +53,24 @@ export function FlashcardDeck({ flashcards, className }: Props) {
         // 最後のカードの場合は完了状態に移行
         setCurrentIndex(flashcards.length);
         setShowCelebration(true);
+        
+        // 完了トースト通知
+        const okCount = Object.values(completedCards).filter((v) => v === "ok").length + (completedCards[flashcards[currentIndex]?.id] === "ok" ? 0 : 1);
+        const accuracy = Math.round((okCount / flashcards.length) * 100);
+        
+        if (accuracy >= 80) {
+          toast.success(`🎉 素晴らしい！${flashcards.length}枚の学習を完了しました（正解率: ${accuracy}%）`, {
+            duration: 6000,
+          });
+        } else if (accuracy >= 60) {
+          toast.success(`👏 よくできました！${flashcards.length}枚の学習を完了しました（正解率: ${accuracy}%）`, {
+            duration: 6000,
+          });
+        } else {
+          toast.success(`📚 学習完了！もう一度チャレンジしてみましょう（正解率: ${accuracy}%）`, {
+            duration: 6000,
+          });
+        }
       } else {
         // 次のカードに移動
         setCurrentIndex(currentIndex + 1);

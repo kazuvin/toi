@@ -27,15 +27,22 @@ export function useContentCreation() {
       // 入力方法に応じてソースを作成
       if (inputMethod === "website") {
         // URLからソースを作成
+        toast.loading("Webサイトからコンテンツを取得中...", { id: "content-creation" });
         response = await createSourceFromUrl({ url: content });
+        toast.success("Webサイトからコンテンツを取得しました", { id: "content-creation" });
       } else {
         // テキストまたはファイルからソースを作成
+        toast.loading("コンテンツを処理中...", { id: "content-creation" });
         response = await createSource({
           content,
           type: "TEXT",
         });
+        toast.success("コンテンツを作成しました", { id: "content-creation" });
       }
 
+      // タイトル生成とフラッシュカード作成
+      toast.loading("タイトルとフラッシュカードを生成中...", { id: "content-creation" });
+      
       // ソースのタイトルを更新
       await postTitle({ sourceId: response.id });
 
@@ -45,9 +52,29 @@ export function useContentCreation() {
       // ソース一覧を更新
       mutate("/api/sources");
 
+      // 成功通知
+      toast.success("学習コンテンツが正常に作成されました！フラッシュカードの学習を開始できます。", { 
+        id: "content-creation",
+        duration: 5000 
+      });
+
       navigate(`/content/${response.id}/flashcards`);
     } catch (error) {
-      toast.error("学習コンテンツの作成に失敗しました");
+      // エラーメッセージをより詳細に
+      let errorMessage = "学習コンテンツの作成に失敗しました";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("URL")) {
+          errorMessage = "URLからコンテンツを取得できませんでした。URLが正しいか確認してください。";
+        } else if (error.message.includes("network")) {
+          errorMessage = "ネットワークエラーが発生しました。インターネット接続を確認してください。";
+        }
+      }
+      
+      toast.error(errorMessage, { 
+        id: "content-creation",
+        duration: 6000 
+      });
       console.error(error);
     } finally {
       setIsLoading(false);

@@ -9,7 +9,6 @@ import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
 import Provider from "./provider";
-import { Toaster } from "./components/ui/toaster";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,7 +45,6 @@ export default function App() {
   return (
     <Provider>
       <Outlet />
-      <Toaster />
     </Provider>
   );
 }
