@@ -9,6 +9,7 @@ vi.mock("~/features/content/hooks", () => ({
   useFileHandler: vi.fn(),
   useContentCreation: vi.fn(),
   usePdfHandler: vi.fn(),
+  useYoutubeHandler: vi.fn(),
   useContentForm: vi.fn(),
 }));
 
@@ -53,6 +54,7 @@ describe("ContentNew", () => {
   const mockUseFileHandler = vi.mocked(contentHooks.useFileHandler);
   const mockUseContentCreation = vi.mocked(contentHooks.useContentCreation);
   const mockUsePdfHandler = vi.mocked(contentHooks.usePdfHandler);
+  const mockUseYoutubeHandler = vi.mocked(contentHooks.useYoutubeHandler);
   const mockUseContentForm = vi.mocked(contentHooks.useContentForm);
 
   const defaultMocks = {
@@ -72,6 +74,11 @@ describe("ContentNew", () => {
       handlePdfUpload: vi.fn(),
       clearPdfData: vi.fn(),
     },
+    useYoutubeHandler: {
+      youtubeData: null,
+      handleYoutubeUrlChange: vi.fn(),
+      clearYoutubeData: vi.fn(),
+    },
     useContentForm: {
       inputMethod: "text" as const,
       inputText: "",
@@ -88,6 +95,7 @@ describe("ContentNew", () => {
     mockUseFileHandler.mockReturnValue(defaultMocks.useFileHandler);
     mockUseContentCreation.mockReturnValue(defaultMocks.useContentCreation);
     mockUsePdfHandler.mockReturnValue(defaultMocks.usePdfHandler);
+    mockUseYoutubeHandler.mockReturnValue(defaultMocks.useYoutubeHandler);
     mockUseContentForm.mockReturnValue(defaultMocks.useContentForm);
   });
 

@@ -11,6 +11,7 @@ import {
   useFileHandler,
   useContentCreation,
   usePdfHandler,
+  useYoutubeHandler,
   useContentForm,
 } from "~/features/content/hooks";
 
@@ -22,6 +23,7 @@ export default function ContentNew() {
   const { handleFileUpload } = useFileHandler();
   const { isLoading, createContent } = useContentCreation();
   const { pdfData, handlePdfUpload } = usePdfHandler();
+  const { youtubeData, handleYoutubeUrlChange } = useYoutubeHandler();
   const {
     inputMethod,
     inputText,
@@ -39,10 +41,12 @@ export default function ContentNew() {
   };
 
   const handleCreateContent = async () => {
-    if (!isFormValid(pdfData)) return;
+    if (!isFormValid(pdfData, youtubeData)) return;
 
     if (inputMethod === "pdf" && pdfData) {
       await createContent(inputText, ["flashcard"], inputMethod, pdfData);
+    } else if (inputMethod === "youtube" && youtubeData) {
+      await createContent(inputText, ["flashcard"], inputMethod, undefined, youtubeData);
     } else {
       await createContent(inputText, ["flashcard"], inputMethod);
     }
@@ -78,13 +82,14 @@ export default function ContentNew() {
                 onInputTextChange={handleInputTextChange}
                 onFileUpload={handleFileUpload}
                 onPdfUpload={handlePdfFileUpload}
+                onYoutubeUrlChange={handleYoutubeUrlChange}
               />
             </CardContent>
           </Card>
 
           {/* 生成ボタン */}
           <ContentCreationButton
-            disabled={!isFormValid(pdfData) || isLoading}
+            disabled={!isFormValid(pdfData, youtubeData) || isLoading}
             isLoading={isLoading}
             onClick={handleCreateContent}
           />

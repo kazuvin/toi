@@ -9,6 +9,7 @@ type InputAreaProps = {
   onInputTextChange: (text: string) => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onPdfUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onYoutubeUrlChange?: (url: string) => void;
 };
 
 export function InputArea({
@@ -17,6 +18,7 @@ export function InputArea({
   onInputTextChange,
   onFileUpload,
   onPdfUpload,
+  onYoutubeUrlChange,
 }: InputAreaProps) {
   const handlePasteFromClipboard = async () => {
     try {
@@ -133,7 +135,10 @@ export function InputArea({
                 type="url"
                 placeholder="https://www.youtube.com/watch?v=..."
                 value={inputText}
-                onChange={(e) => onInputTextChange(e.target.value)}
+                onChange={(e) => {
+                  onInputTextChange(e.target.value);
+                  onYoutubeUrlChange?.(e.target.value);
+                }}
               />
             </div>
           </div>
