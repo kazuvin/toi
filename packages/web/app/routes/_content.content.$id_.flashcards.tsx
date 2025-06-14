@@ -1,9 +1,11 @@
 import { useParams } from "@remix-run/react";
 import useSWR from "swr";
+import { toast } from "sonner";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
 import { FlashcardDeck } from "~/features/flashcard/components";
 import { Spinner } from "~/components/ui/spinner";
 import { useContentDetail } from "~/features/content";
+import { useEffect } from "react";
 
 export default function ContentFlashcards() {
   const { id } = useParams();
@@ -19,6 +21,15 @@ export default function ContentFlashcards() {
       revalidateOnFocus: false,
     }
   );
+
+  // エラー時のトースト通知
+  useEffect(() => {
+    if (error) {
+      toast.error("フラッシュカードの読み込みに失敗しました。ページを再読み込みしてください。", {
+        duration: 6000,
+      });
+    }
+  }, [error]);
 
   if (isLoading) {
     return (

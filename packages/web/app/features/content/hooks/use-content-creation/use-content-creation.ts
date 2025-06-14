@@ -47,7 +47,20 @@ export function useContentCreation() {
 
       navigate(`/content/${response.id}/flashcards`);
     } catch (error) {
-      toast.error("学習コンテンツの作成に失敗しました");
+      // エラーメッセージをより詳細に
+      let errorMessage = "学習コンテンツの作成に失敗しました";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("URL")) {
+          errorMessage = "URLからコンテンツを取得できませんでした。URLが正しいか確認してください。";
+        } else if (error.message.includes("network")) {
+          errorMessage = "ネットワークエラーが発生しました。インターネット接続を確認してください。";
+        }
+      }
+      
+      toast.error(errorMessage, { 
+        duration: 6000 
+      });
       console.error(error);
     } finally {
       setIsLoading(false);
