@@ -1,4 +1,4 @@
-import { DrizzleD1Database } from "drizzle-orm/d1";
+import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { source } from "@/db/schemas";
 import { PostSourceBody, PutSourceBody } from "@toi/shared/src/schemas/source";
 import { eq } from "drizzle-orm";
@@ -23,6 +23,30 @@ export const createSource = async (
       type: data.type,
     })
     .returning();
+};
+
+export const insertSource = async (
+  db: D1Database,
+  data: {
+    id: string;
+    uid?: string;
+    content: string;
+    type: "TEXT";
+    title?: string;
+  }
+) => {
+  const drizzleDb = drizzle(db);
+  return await drizzleDb
+    .insert(source)
+    .values({
+      id: data.id,
+      uid: data.uid,
+      content: data.content,
+      type: data.type,
+      title: data.title,
+    })
+    .returning()
+    .then((result) => result[0]);
 };
 
 export const updateSource = async (

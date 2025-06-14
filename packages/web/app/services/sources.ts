@@ -5,6 +5,7 @@ import {
   PutSourceDetailResponse,
   PostSourceBody,
   PostSourceDetailResponse,
+  PostSourceFromUrlBody,
 } from "@toi/shared/src/schemas/source";
 import { api } from "./base";
 
@@ -22,4 +23,8 @@ export const updateSource = async (id: string, body: PutSourceBody) => {
 
 export const createSource = async (body: PostSourceBody) => {
   return api.post<PostSourceDetailResponse>("/sources", body);
+};
+
+export const createSourceFromUrl = async (body: PostSourceFromUrlBody) => {
+  return api.post<PostSourceDetailResponse>("/sources/url", body);
 };

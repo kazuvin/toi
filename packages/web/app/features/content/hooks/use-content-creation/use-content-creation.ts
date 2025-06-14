@@ -2,7 +2,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import { useNavigate } from "@remix-run/react";
 import { toast } from "sonner";
-import { createSource } from "~/services/sources";
+import { createSource, createSourceFromUrl } from "~/services/sources";
 import type { OutputFormatType } from "../use-output-formats";
 import { postFlashcard } from "~/services/flashcard";
 import { postTitle } from "~/services/source";
@@ -13,7 +13,8 @@ export function useContentCreation() {
 
   const createContent = async (
     content: string,
-    selectedFormats: OutputFormatType[]
+    selectedFormats: OutputFormatType[],
+    inputMethod: "text" | "file" | "website" | "youtube" = "text"
   ) => {
     if (!content || selectedFormats.length === 0) {
       return;
@@ -21,11 +22,19 @@ export function useContentCreation() {
 
     setIsLoading(true);
     try {
-      // ソースを作成
-      const response = await createSource({
-        content,
-        type: "TEXT",
-      });
+      let response;
+      
+      // 入力方法に応じてソースを作成
+      if (inputMethod === "website") {
+        // URLからソースを作成
+        response = await createSourceFromUrl({ url: content });
+      } else {
+        // テキストまたはファイルからソースを作成
+        response = await createSource({
+          content,
+          type: "TEXT",
+        });
+      }
 
       // ソースのタイトルを更新
       await postTitle({ sourceId: response.id });

@@ -17,6 +17,7 @@ import {
   PutSourceDetailResponse,
 } from "@toi/shared/src/schemas/source";
 import { ZodError } from "zod";
+import urlRoute from "./sources/url";
 
 type Bindings = {
   DB: D1Database;
@@ -122,5 +123,7 @@ app
 
     return c.json(response);
   });
+
+app.route("/url", urlRoute);
 
 export default app;

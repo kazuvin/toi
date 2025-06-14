@@ -24,7 +24,7 @@ export default function ContentNew() {
 
   const handleCreateContent = async () => {
     // TODO: 出力形式を選択できるようにする
-    await createContent(inputText, ["flashcard"]);
+    await createContent(inputText, ["flashcard"], inputMethod);
   };
 
   return (
