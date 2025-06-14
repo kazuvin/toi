@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import ContentNew from "./_content.new";
+import ContentNew from "../../routes/_content.new";
 import * as contentHooks from "~/features/content/hooks";
 
 // モックの設定
