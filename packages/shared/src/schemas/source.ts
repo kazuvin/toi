@@ -50,9 +50,21 @@ export const PostSourceBodySchema = z.object({
 });
 
 /**
+ * URL からソース作成 (POST) のリクエストボディスキーマ
+ */
+export const PostSourceFromUrlBodySchema = z.object({
+  url: z.string().url(),
+});
+
+/**
  * ソース作成 (POST) のリクエストボディの型
  */
 export type PostSourceBody = z.infer<typeof PostSourceBodySchema>;
+
+/**
+ * URL からソース作成 (POST) のリクエストボディの型
+ */
+export type PostSourceFromUrlBody = z.infer<typeof PostSourceFromUrlBodySchema>;
 
 /**
  * ソース作成 (POST) のレスポンススキーマ
