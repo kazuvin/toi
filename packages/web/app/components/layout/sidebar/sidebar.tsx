@@ -11,22 +11,24 @@ import { Link } from "@remix-run/react";
 import useSWR from "swr";
 import { getSources } from "~/services/sources";
 import { Spinner } from "~/components/ui/spinner";
+import AccountInfoDialog from "../account-info-dialog";
 
 type AccountInfoProps = ComponentPropsWithoutRef<"div"> & {
   isOpen: boolean;
+  onAccountClick: () => void;
 };
 
-function AccountInfo({ isOpen }: AccountInfoProps) {
+function AccountInfo({ isOpen, onAccountClick }: AccountInfoProps) {
   return (
     <div className="flex items-center gap-sm py-sm min-w-0">
-      <Link
-        to="/account"
-        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors flex-shrink-0"
+      <button
+        onClick={onAccountClick}
+        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors flex-shrink-0 hover:bg-muted-foreground/30"
       >
         <div className="size-4 flex items-center justify-center">
           <User className="size-4" />
         </div>
-      </Link>
+      </button>
       <div
         className={cn(
           "transition-opacity duration-300 min-w-0 flex-1",
@@ -92,6 +94,7 @@ type SidebarProps = ComponentPropsWithoutRef<"aside"> & {
 
 export default function Sidebar({ className, ...props }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const { data: sources } = useSWR("/api/sources", getSources);
 
   return (
@@ -171,8 +174,16 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
       </div>
 
       <div className="flex items-center mt-auto h-16">
-        <AccountInfo isOpen={isOpen} />
+        <AccountInfo 
+          isOpen={isOpen} 
+          onAccountClick={() => setIsAccountDialogOpen(true)}
+        />
       </div>
+
+      <AccountInfoDialog
+        isOpen={isAccountDialogOpen}
+        onClose={() => setIsAccountDialogOpen(false)}
+      />
     </aside>
   );
 }

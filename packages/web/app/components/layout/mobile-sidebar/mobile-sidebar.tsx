@@ -1,11 +1,12 @@
 import { cn } from "~/lib/utils";
-import { ComponentPropsWithoutRef, useEffect } from "react";
+import { ComponentPropsWithoutRef, useEffect, useState } from "react";
 import { User, X, MessageSquare, PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
 import useSWR from "swr";
 import { getSources } from "~/services/sources";
 import { Spinner } from "../../ui/spinner/spinner";
+import AccountInfoDialog from "../account-info-dialog";
 
 type SidebarItemProps = {
   children: React.ReactNode;
@@ -20,17 +21,17 @@ type MobileSidebarProps = ComponentPropsWithoutRef<"aside"> & {
   onClose: () => void;
 };
 
-function AccountInfo() {
+function AccountInfo({ onAccountClick }: { onAccountClick: () => void }) {
   return (
     <div className="flex items-center gap-sm py-sm min-w-0">
-      <Link
-        to="/account"
-        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors flex-shrink-0"
+      <button
+        onClick={onAccountClick}
+        className="p-2 bg-muted-foreground/20 rounded-sm transition-colors flex-shrink-0 hover:bg-muted-foreground/30"
       >
         <div className="size-4 flex items-center justify-center">
           <User className="size-4" />
         </div>
-      </Link>
+      </button>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium truncate">Kazuvin</p>
         <p className="text-xs text-muted-foreground truncate">無料プラン</p>
@@ -72,6 +73,7 @@ function MobileSidebar({
   ...props
 }: MobileSidebarProps) {
   const { data: sources } = useSWR("/api/sources", getSources);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
 
   // モバイルサイドバーが開いている時はbodyのスクロールを無効化
   useEffect(() => {
@@ -171,9 +173,14 @@ function MobileSidebar({
         </div>
 
         <div className="mt-auto flex-shrink-0">
-          <AccountInfo />
+          <AccountInfo onAccountClick={() => setIsAccountDialogOpen(true)} />
         </div>
       </aside>
+
+      <AccountInfoDialog
+        isOpen={isAccountDialogOpen}
+        onClose={() => setIsAccountDialogOpen(false)}
+      />
     </>
   );
 }
