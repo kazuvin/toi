@@ -1,4 +1,4 @@
-import { Upload, Globe, Youtube, Clipboard } from "lucide-react";
+import { Upload, Globe, Youtube, Clipboard, FileText } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import type { InputMethod } from "../input-method-selector";
@@ -8,6 +8,7 @@ type InputAreaProps = {
   inputText: string;
   onInputTextChange: (text: string) => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onPdfUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function InputArea({
@@ -15,6 +16,7 @@ export function InputArea({
   inputText,
   onInputTextChange,
   onFileUpload,
+  onPdfUpload,
 }: InputAreaProps) {
   const handlePasteFromClipboard = async () => {
     try {
@@ -134,6 +136,58 @@ export function InputArea({
                 onChange={(e) => onInputTextChange(e.target.value)}
               />
             </div>
+          </div>
+        );
+      case "pdf":
+        return (
+          <div className="w-full h-64 rounded-lg border border-gray-200 bg-white/90 backdrop-blur-sm shadow-sm overflow-hidden">
+            {inputText ? (
+              <div className="w-full h-full p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-red-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">
+                    PDFファイルが選択されました
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                  {inputText}
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-6 p-6">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-red-600" />
+                </div>
+                <div className="text-center space-y-3">
+                  <p className="text-sm font-medium text-gray-700">
+                    PDFファイルをドラッグ&ドロップまたは選択
+                  </p>
+                  <div className="text-xs text-gray-500">
+                    対応形式: .pdf
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="pdf-upload"
+                  className="hidden"
+                  onChange={onPdfUpload}
+                  accept=".pdf"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    document.getElementById("pdf-upload")?.click()
+                  }
+                  className="mt-2"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  PDFファイルを選択
+                </Button>
+              </div>
+            )}
           </div>
         );
       default:

@@ -1,6 +1,6 @@
-import { Type, Upload, Globe, Youtube } from "lucide-react";
+import { Type, Upload, Globe, Youtube, FileText } from "lucide-react";
 
-export type InputMethod = "text" | "file" | "website" | "youtube";
+export type InputMethod = "text" | "file" | "website" | "youtube" | "pdf";
 
 type InputMethodSelectorProps = {
   selectedMethod: InputMethod;
@@ -36,10 +36,16 @@ export function InputMethodSelector({
       icon: Youtube,
       description: "動画から取得",
     },
+    {
+      id: "pdf" as const,
+      label: "PDF",
+      icon: FileText,
+      description: "PDFファイル",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 touch-pan-y">
+    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 touch-pan-y">
       {inputMethods.map((method) => {
         const Icon = method.icon;
         const isActive = selectedMethod === method.id;
