@@ -101,7 +101,7 @@ export function useFlashcardDeck({
     }
   }, [currentDeck, thoroughLearning]);
 
-  // Handle NG - move card to end of deck
+  // Handle NG - behavior depends on learning mode
   const handleNg = useCallback(() => {
     const currentCard = currentDeck[0]; // Always use index 0
     if (!currentCard) return;
@@ -115,14 +115,19 @@ export function useFlashcardDeck({
       }
     }));
 
-    // Move card to end of deck
-    setCurrentDeck(prev => {
-      const newDeck = [...prev];
-      const [movedCard] = newDeck.splice(0, 1);
-      newDeck.push(movedCard);
-      return newDeck;
-    });
-  }, [currentDeck]);
+    if (thoroughLearning) {
+      // In thorough learning mode, move card to end of deck
+      setCurrentDeck(prev => {
+        const newDeck = [...prev];
+        const [movedCard] = newDeck.splice(0, 1);
+        newDeck.push(movedCard);
+        return newDeck;
+      });
+    } else {
+      // In normal mode, remove card from deck (same as OK)
+      setCurrentDeck(prev => prev.slice(1));
+    }
+  }, [currentDeck, thoroughLearning]);
 
   // Reset function
   const reset = useCallback(() => {
@@ -139,10 +144,12 @@ export function useFlashcardDeck({
   // Calculate current card (always index 0)
   const currentCard = currentDeck[0];
 
-  // Calculate total OK cards
-  const totalOkCards = removedCardIds.size;
+  // Calculate total OK cards and progress
+  const totalOkCards = thoroughLearning 
+    ? removedCardIds.size  // In thorough learning, count removed cards
+    : totalOriginalCards - currentDeck.length;  // In normal mode, count processed cards
 
-  // Calculate progress - based on OK cards out of total
+  // Calculate progress - based on processed cards out of total
   const progressPercentage = Math.round((totalOkCards / totalOriginalCards) * 100);
 
   return {
