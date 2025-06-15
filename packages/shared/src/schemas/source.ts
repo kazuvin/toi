@@ -201,6 +201,36 @@ export type PostTitleRequestBody = z.infer<typeof postTitleRequestBody>;
 export type PostTitleResponse = z.infer<typeof postTitleResponseSchema>;
 
 /**
+ * フラッシュカード更新 (PUT) のリクエストボディスキーマ
+ */
+export const putFlashcardRequestBodySchema = z.object({
+  question: z.string(),
+  answer: z.string(),
+});
+
+/**
+ * フラッシュカード更新 (PUT) のレスポンススキーマ
+ */
+export const putFlashcardResponseSchema = z.object({
+  id: z.string(),
+  sourceId: z.string(),
+  question: z.string(),
+  answer: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+/**
+ * フラッシュカード更新 (PUT) のリクエストボディの型
+ */
+export type PutFlashcardRequestBody = z.infer<typeof putFlashcardRequestBodySchema>;
+
+/**
+ * フラッシュカード更新 (PUT) のレスポンスの型
+ */
+export type PutFlashcardResponse = z.infer<typeof putFlashcardResponseSchema>;
+
+/**
  * ソース削除 (DELETE) のレスポンススキーマ
  */
 export const DeleteSourceResponseSchema = z.object({
