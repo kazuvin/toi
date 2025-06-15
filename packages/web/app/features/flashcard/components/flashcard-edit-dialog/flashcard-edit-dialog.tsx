@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { mutate } from "swr";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +11,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "~/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 import { updateFlashcard } from "~/services/flashcard";
-import { PutFlashcardRequestBody } from "@toi/shared/src/schemas/source";
+import { type PutFlashcardRequestBody } from "@toi/shared/src/schemas/source";
 
 type FlashcardEditDialogProps = {
   isOpen: boolean;
@@ -24,51 +33,49 @@ type FlashcardEditDialogProps = {
   };
 };
 
+type FormValues = PutFlashcardRequestBody;
+
 export function FlashcardEditDialog({
   isOpen,
   onClose,
   flashcard,
 }: FlashcardEditDialogProps) {
-  const [question, setQuestion] = useState(flashcard.question);
-  const [answer, setAnswer] = useState(flashcard.answer);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const formSchema = z.object({
+    question: z.string().min(1, "質問は必須です"),
+    answer: z.string().min(1, "回答は必須です"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!question.trim() || !answer.trim()) {
-      setError("質問と回答は必須です");
-      return;
-    }
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      question: flashcard.question,
+      answer: flashcard.answer,
+    },
+  });
 
-    setIsLoading(true);
-    setError(null);
+  const { handleSubmit, formState: { isSubmitting }, reset, setError: setFormError } = form;
 
+  const onSubmit = async (values: FormValues) => {
     try {
-      const body: PutFlashcardRequestBody = {
-        question: question.trim(),
-        answer: answer.trim(),
-      };
-
-      await updateFlashcard(flashcard.sourceId, flashcard.id, body);
+      await updateFlashcard(flashcard.sourceId, flashcard.id, values);
       
       // SWRキャッシュを更新
       mutate(`/sources/${flashcard.sourceId}/flashcards`);
       
       onClose();
     } catch (err) {
-      setError("フラッシュカードの更新に失敗しました");
+      setFormError("root", {
+        message: "フラッシュカードの更新に失敗しました"
+      });
       console.error("Error updating flashcard:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    setQuestion(flashcard.question);
-    setAnswer(flashcard.answer);
-    setError(null);
+    reset({
+      question: flashcard.question,
+      answer: flashcard.answer,
+    });
     onClose();
   };
 
@@ -79,49 +86,65 @@ export function FlashcardEditDialog({
           <DialogTitle>フラッシュカードを編集</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="question">質問</Label>
-            <Input
-              id="question"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="質問を入力してください"
-              disabled={isLoading}
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="question"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>質問</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="質問を入力してください"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="answer">回答</Label>
-            <Input
-              id="answer"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="回答を入力してください"
-              disabled={isLoading}
+            
+            <FormField
+              control={form.control}
+              name="answer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>回答</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="回答を入力してください"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          
-          {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-              {error}
-            </div>
-          )}
-          
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isLoading}
-            >
-              キャンセル
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "保存中..." : "保存"}
-            </Button>
-          </DialogFooter>
-        </form>
+            
+            {form.formState.errors.root && (
+              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                {form.formState.errors.root.message}
+              </div>
+            )}
+            
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                キャンセル
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "保存中..." : "保存"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
