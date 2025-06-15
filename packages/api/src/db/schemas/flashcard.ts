@@ -6,7 +6,7 @@ export const flashcard = sqliteTable(
   "flashcard",
   {
     id: text("id").primaryKey(),
-    sourceId: text("source_id").references(() => source.id),
+    sourceId: text("source_id").references(() => source.id, { onDelete: 'cascade' }),
     question: text("question").notNull(),
     answer: text("answer").notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
