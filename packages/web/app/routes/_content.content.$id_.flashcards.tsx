@@ -2,7 +2,7 @@ import { useParams } from "@remix-run/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
-import { FlashcardDeck } from "~/features/flashcard/components";
+import { FlashcardDeck, LearningSettings } from "~/features/flashcard/components";
 import { Spinner } from "~/components/ui/spinner";
 import { useContentDetail } from "~/features/content";
 import { useEffect } from "react";
@@ -77,7 +77,17 @@ export default function ContentFlashcards() {
         </h1>
       </div>
 
-      <FlashcardDeck flashcards={data.flashcards} />
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Settings Panel */}
+        <div className="lg:col-span-1">
+          <LearningSettings />
+        </div>
+        
+        {/* Flashcard Deck */}
+        <div className="lg:col-span-3">
+          <FlashcardDeck flashcards={data.flashcards} />
+        </div>
+      </div>
     </div>
   );
 }

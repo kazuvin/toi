@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useAtom } from "jotai";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
 import { Confetti } from "../confetti";
+import { shuffleAtom, thoroughLearningAtom } from "~/state";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
 type Props = {
@@ -11,12 +13,42 @@ type Props = {
 };
 
 export function FlashcardDeck({ flashcards, className }: Props) {
+  const [shuffle] = useAtom(shuffleAtom);
+  const [thoroughLearning] = useAtom(thoroughLearningAtom);
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedCards, setCompletedCards] = useState<{
     [key: string]: "ok" | "ng";
   }>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [ngCards, setNgCards] = useState<string[]>([]);
+  const [currentDeck, setCurrentDeck] = useState<GetSourceFlashcardsResponse["flashcards"]>([]);
+
+  // Create deck based on settings and current state
+  const createDeck = useMemo(() => {
+    let deck = [...flashcards];
+    
+    // If we have NG cards to review in thorough learning mode
+    if (thoroughLearning && ngCards.length > 0) {
+      deck = flashcards.filter(card => ngCards.includes(card.id));
+    }
+    
+    // Shuffle if enabled
+    if (shuffle) {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    }
+    
+    return deck;
+  }, [flashcards, shuffle, thoroughLearning, ngCards]);
+
+  // Update current deck when dependencies change
+  useEffect(() => {
+    setCurrentDeck(createDeck);
+  }, [createDeck]);
 
   // flashcardsが変更された時（異なるフラッシュカードに遷移した時）にstateを初期化
   useEffect(() => {
@@ -24,26 +56,40 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     setCompletedCards({});
     setIsAnimating(false);
     setShowCelebration(false);
-  }, [flashcards]);
+    setNgCards([]);
+    setCurrentDeck(createDeck);
+  }, [flashcards, createDeck]);
 
   function handleSwipeLeft() {
-    const currentCard = flashcards[currentIndex];
+    const currentCard = currentDeck[currentIndex];
     if (currentCard) {
       setCompletedCards((prev) => ({
         ...prev,
         [currentCard.id]: "ng",
       }));
+      
+      // Thorough learning: add NG cards to review queue
+      if (thoroughLearning && !ngCards.includes(currentCard.id)) {
+        setNgCards((prev) => [...prev, currentCard.id]);
+      }
+      
       nextCard();
     }
   }
 
   function handleSwipeRight() {
-    const currentCard = flashcards[currentIndex];
+    const currentCard = currentDeck[currentIndex];
     if (currentCard) {
       setCompletedCards((prev) => ({
         ...prev,
         [currentCard.id]: "ok",
       }));
+      
+      // If this was an NG card that user got right, remove from NG queue
+      if (thoroughLearning && ngCards.includes(currentCard.id)) {
+        setNgCards((prev) => prev.filter(id => id !== currentCard.id));
+      }
+      
       nextCard();
     }
   }
@@ -51,21 +97,26 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   function nextCard() {
     setIsAnimating(true);
 
-    // 最後のカードかどうかをチェック
-    const isLastCard = currentIndex >= flashcards.length - 1;
+    // Check if this is the last card in current deck
+    const isLastCard = currentIndex >= currentDeck.length - 1;
 
-    // アニメーション開始
     setTimeout(() => {
       if (isLastCard) {
-        // 最後のカードの場合は完了状態に移行
-        setCurrentIndex(flashcards.length);
-        setShowCelebration(true);
+        // If thorough learning is enabled and there are NG cards to review
+        if (thoroughLearning && ngCards.length > 0) {
+          // Reset to start reviewing NG cards
+          setCurrentIndex(0);
+          // Deck will be updated automatically by createDeck memo
+        } else {
+          // Complete the learning session
+          setCurrentIndex(currentDeck.length);
+          setShowCelebration(true);
+        }
       } else {
-        // 次のカードに移動
+        // Move to next card
         setCurrentIndex(currentIndex + 1);
       }
 
-      // アニメーション終了
       setTimeout(() => {
         setIsAnimating(false);
       }, 100);
@@ -78,6 +129,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     setTimeout(() => {
       setCurrentIndex(0);
       setCompletedCards({});
+      setNgCards([]);
       setTimeout(() => {
         setIsAnimating(false);
       }, 100);
@@ -86,7 +138,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
   // カードが変わったときの初期アニメーション
   useEffect(() => {
-    if (currentIndex < flashcards.length) {
+    if (currentIndex < currentDeck.length) {
       setIsAnimating(true);
       const timer = setTimeout(() => {
         setIsAnimating(false);
@@ -94,15 +146,15 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, flashcards.length]);
+  }, [currentIndex, currentDeck.length]);
 
-  const isCompleted = currentIndex >= flashcards.length;
-  const currentCard = flashcards[currentIndex];
+  const isCompleted = currentIndex >= currentDeck.length && (!thoroughLearning || ngCards.length === 0);
+  const currentCard = currentDeck[currentIndex];
   const completedCount = Object.keys(completedCards).length;
   const okCount = Object.values(completedCards).filter(
     (v) => v === "ok"
   ).length;
-  const ngCount = Object.values(completedCards).filter(
+  const ngCountValue = Object.values(completedCards).filter(
     (v) => v === "ng"
   ).length;
 
@@ -149,7 +201,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
                 <div className="text-sm text-gray-500">正解</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{ngCount}</div>
+                <div className="text-2xl font-bold text-red-600">{ngCountValue}</div>
                 <div className="text-sm text-gray-500">不正解</div>
               </div>
             </div>
@@ -174,7 +226,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
       <div className="w-full max-w-md">
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>
-            {currentIndex + 1} / {flashcards.length}
+            {currentIndex + 1} / {currentDeck.length}
           </span>
           <span>{progressPercentage}%</span>
         </div>
@@ -191,7 +243,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
       {/* Card Stack */}
       <div className="relative">
         {/* Background cards for stack effect */}
-        {flashcards
+        {currentDeck
           .slice(currentIndex + 1, currentIndex + 3)
           .map((_, index) => (
             <div
