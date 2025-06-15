@@ -116,6 +116,38 @@ describe("useFlashcardDeck", () => {
     });
   });
 
+  describe("Issue #50 - NG card display order bug", () => {
+    it("should maintain NG card order when other cards are OK'd in thorough learning", () => {
+      const { result } = renderHook(() =>
+        useFlashcardDeck({
+          flashcards: mockFlashcards,
+          shuffle: false,
+          thoroughLearning: true,
+        })
+      );
+
+      // Initial deck: [1, 2, 3]
+      expect(result.current.currentDeck.map(card => card.id)).toEqual(["1", "2", "3"]);
+      expect(result.current.currentCard?.id).toBe("1");
+
+      // NG card 1 -> should move to end: [2, 3, 1]
+      act(() => {
+        result.current.handleNg();
+      });
+      expect(result.current.currentDeck.map(card => card.id)).toEqual(["2", "3", "1"]);
+      expect(result.current.currentCard?.id).toBe("2");
+
+      // OK card 2 -> should remove from deck but maintain order: [3, 1]
+      act(() => {
+        result.current.handleOk();
+      });
+      
+      // This is the bug: currentCard should be "3", not "1"
+      expect(result.current.currentDeck.map(card => card.id)).toEqual(["3", "1"]);
+      expect(result.current.currentCard?.id).toBe("3"); // Should show card 3, not card 1
+    });
+  });
+
   describe("Thorough learning mode", () => {
     it("should remove card completely on OK", () => {
       const { result } = renderHook(() =>
@@ -512,9 +544,8 @@ describe("useFlashcardDeck", () => {
       });
       expect(result.current.currentDeck.length).toBe(2); // Card 2 removed
       expect(result.current.totalOkCards).toBe(1); // One card completed
-      // After removing card 2, deck is recreated from original flashcards minus removed cards
-      // Original: [1, 2, 3], removed: [2], remaining: [1, 3], so current card is 1
-      expect(result.current.currentCard?.id).toBe("1");
+      // After removing card 2 from deck [2, 3, 1], remaining deck is [3, 1], so current card is 3
+      expect(result.current.currentCard?.id).toBe("3");
 
       // Verify card stats
       expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 1 });

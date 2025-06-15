@@ -47,20 +47,15 @@ export function useFlashcardDeck({
     return shuffled;
   }, []);
 
-  // Initialize or update deck
+  // Initialize deck only when flashcards change or on first load
   useEffect(() => {
     let deck: GetSourceFlashcardsResponse["flashcards"];
     
-    if (thoroughLearning) {
-      // In thorough learning mode, only include cards that haven't been removed (OK'd)
-      deck = flashcards.filter(card => !removedCardIds.has(card.id));
-    } else {
-      // In normal mode, include all cards
-      deck = [...flashcards];
-    }
+    // Always start with all cards for both modes
+    deck = [...flashcards];
 
-    // Apply shuffle if enabled and this is initial setup or shuffle setting changed
-    if (shuffle && (!isInitialized || !isInitialized)) {
+    // Apply shuffle if enabled and this is initial setup
+    if (shuffle && !isInitialized) {
       deck = shuffleDeck(deck);
     }
 
@@ -69,7 +64,7 @@ export function useFlashcardDeck({
     if (!isInitialized) {
       setIsInitialized(true);
     }
-  }, [flashcards, thoroughLearning, removedCardIds, shuffle, shuffleDeck, isInitialized]);
+  }, [flashcards, shuffle, shuffleDeck, isInitialized]);
 
   // Reset when flashcards change (different content)
   useEffect(() => {
@@ -93,8 +88,9 @@ export function useFlashcardDeck({
     }));
 
     if (thoroughLearning) {
-      // In thorough learning mode, remove card from deck
+      // In thorough learning mode, remove card from both deck and removed list
       setRemovedCardIds(prev => new Set([...prev, currentCard.id]));
+      setCurrentDeck(prev => prev.slice(1));
     } else {
       // In normal mode, remove card from current deck
       setCurrentDeck(prev => prev.slice(1));
@@ -133,13 +129,17 @@ export function useFlashcardDeck({
   const reset = useCallback(() => {
     setCardStats({});
     setRemovedCardIds(new Set());
+    // Reset deck to original order
+    let deck = [...flashcards];
+    if (shuffle) {
+      deck = shuffleDeck(deck);
+    }
+    setCurrentDeck(deck);
     setIsInitialized(false);
-  }, []);
+  }, [flashcards, shuffle, shuffleDeck]);
 
-  // Calculate completion status
-  const isCompleted = thoroughLearning 
-    ? removedCardIds.size === totalOriginalCards  // All cards removed (all OK)
-    : currentDeck.length === 0;                   // No cards left in deck
+  // Calculate completion status - both modes check if deck is empty
+  const isCompleted = currentDeck.length === 0;
 
   // Calculate current card (always index 0)
   const currentCard = currentDeck[0];
