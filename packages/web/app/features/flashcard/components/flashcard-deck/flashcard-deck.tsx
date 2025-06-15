@@ -185,7 +185,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   // 進捗率の計算（完了時は100%）
   const progressPercentage = isCompleted
     ? 100
-    : Math.round((completedCount / flashcards.length) * 100);
+    : Math.round((completedCount / currentDeck.length) * 100);
 
   if (isCompleted) {
     return (
@@ -198,7 +198,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
         <div className="w-full max-w-md">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>
-              {flashcards.length} / {flashcards.length}
+              {currentDeck.length} / {currentDeck.length}
             </span>
             <span className="text-green-600 font-bold">100%</span>
           </div>
@@ -215,7 +215,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
           <div className="space-y-2">
             <p className="text-lg text-gray-600">
-              {flashcards.length}枚中{completedCount}枚完了
+              {currentDeck.length}枚中{completedCount}枚完了
             </p>
             <div className="flex justify-center space-x-6">
               <div className="text-center">
