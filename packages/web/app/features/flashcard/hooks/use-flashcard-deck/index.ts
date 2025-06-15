@@ -1,0 +1,1 @@
+export { useFlashcardDeck } from "./use-flashcard-deck";

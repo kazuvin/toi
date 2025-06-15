@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
 import { Confetti } from "../confetti";
 import { shuffleAtom, thoroughLearningAtom } from "~/state";
+import { useFlashcardDeck } from "../../hooks";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
 type Props = {
@@ -16,153 +17,75 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   const [shuffle] = useAtom(shuffleAtom);
   const [thoroughLearning] = useAtom(thoroughLearningAtom);
   
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [completedCards, setCompletedCards] = useState<{
-    [key: string]: "ok" | "ng";
-  }>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [ngCards, setNgCards] = useState<string[]>([]);
-  const [currentDeck, setCurrentDeck] = useState<GetSourceFlashcardsResponse["flashcards"]>([]);
-  const [isShuffled, setIsShuffled] = useState(false);
 
-  // Create deck based on settings and current state
-  const createDeck = useCallback(() => {
-    let deck = [...flashcards];
-    
-    // If we have NG cards to review in thorough learning mode
-    if (thoroughLearning && ngCards.length > 0) {
-      deck = flashcards.filter(card => ngCards.includes(card.id));
-    }
-    
-    return deck;
-  }, [flashcards, thoroughLearning, ngCards]);
+  const {
+    currentDeck,
+    currentIndex,
+    currentCard,
+    isCompleted,
+    progressPercentage,
+    okCount,
+    ngCount: ngCountValue,
+    totalOriginalCards,
+    handleOk,
+    handleNg,
+    reset
+  } = useFlashcardDeck({
+    flashcards,
+    shuffle,
+    thoroughLearning
+  });
 
-  // Shuffle deck function
-  const shuffleDeck = useCallback((deck: GetSourceFlashcardsResponse["flashcards"]) => {
-    const shuffled = [...deck];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, []);
-
-  // Update deck when base data changes (flashcards, thoroughLearning, ngCards)
-  useEffect(() => {
-    const newDeck = createDeck();
-    setCurrentDeck(newDeck);
-    setIsShuffled(false); // Reset shuffle status when deck changes
-    
-    // If we're switching to NG cards review and currentIndex is at the end, reset it
-    if (thoroughLearning && ngCards.length > 0 && currentIndex >= currentDeck.length) {
-      setCurrentIndex(0);
-    }
-  }, [createDeck, thoroughLearning, ngCards.length, currentIndex, currentDeck.length]);
-
-  // Handle shuffle setting changes
-  useEffect(() => {
-    if (shuffle && !isShuffled) {
-      // Shuffle is turned on and deck is not shuffled yet
-      setCurrentDeck(prevDeck => shuffleDeck(prevDeck));
-      setIsShuffled(true);
-    } else if (!shuffle && isShuffled) {
-      // Shuffle is turned off, recreate deck in original order
-      const newDeck = createDeck();
-      setCurrentDeck(newDeck);
-      setIsShuffled(false);
-    }
-  }, [shuffle, isShuffled, shuffleDeck, createDeck]);
-
-  // flashcardsが変更された時（異なるフラッシュカードに遷移した時）にstateを初期化
-  useEffect(() => {
-    setCurrentIndex(0);
-    setCompletedCards({});
-    setIsAnimating(false);
-    setShowCelebration(false);
-    setNgCards([]);
-    setIsShuffled(false);
-  }, [flashcards]);
-
+  // Handle swipe left (NG)
   function handleSwipeLeft() {
-    const currentCard = currentDeck[currentIndex];
-    if (currentCard) {
-      setCompletedCards((prev) => ({
-        ...prev,
-        [currentCard.id]: "ng",
-      }));
-      
-      // Thorough learning: add NG cards to review queue
-      if (thoroughLearning && !ngCards.includes(currentCard.id)) {
-        setNgCards((prev) => [...prev, currentCard.id]);
-      }
-      
-      nextCard();
-    }
-  }
-
-  function handleSwipeRight() {
-    const currentCard = currentDeck[currentIndex];
-    if (currentCard) {
-      setCompletedCards((prev) => ({
-        ...prev,
-        [currentCard.id]: "ok",
-      }));
-      
-      // If this was an NG card that user got right, remove from NG queue
-      if (thoroughLearning && ngCards.includes(currentCard.id)) {
-        setNgCards((prev) => prev.filter(id => id !== currentCard.id));
-      }
-      
-      nextCard();
-    }
-  }
-
-  function nextCard() {
+    if (!currentCard || isAnimating) return;
+    
     setIsAnimating(true);
-
-    // Check if this is the last card in current deck
-    const isLastCard = currentIndex >= currentDeck.length - 1;
-
     setTimeout(() => {
-      if (isLastCard) {
-        // If thorough learning is enabled and there are NG cards to review
-        if (thoroughLearning && ngCards.length > 0) {
-          // Wait for the deck to be updated before resetting index
-          // This will be handled by the useEffect that watches ngCards changes
-          setCurrentIndex(currentDeck.length); // Temporarily move to end
-        } else {
-          // Complete the learning session
-          setCurrentIndex(currentDeck.length);
-          setShowCelebration(true);
-        }
-      } else {
-        // Move to next card
-        setCurrentIndex(currentIndex + 1);
-      }
-
+      handleNg();
       setTimeout(() => {
         setIsAnimating(false);
       }, 100);
     }, 200);
   }
 
+  // Handle swipe right (OK)
+  function handleSwipeRight() {
+    if (!currentCard || isAnimating) return;
+    
+    setIsAnimating(true);
+    setTimeout(() => {
+      handleOk();
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 100);
+    }, 200);
+  }
+
+  // Handle reset with animation
   function handleReset() {
     setIsAnimating(true);
     setShowCelebration(false);
     setTimeout(() => {
-      setCurrentIndex(0);
-      setCompletedCards({});
-      setNgCards([]);
+      reset();
       setTimeout(() => {
         setIsAnimating(false);
       }, 100);
     }, 200);
   }
 
-  // カードが変わったときの初期アニメーション
+  // Show celebration when completed
   useEffect(() => {
-    if (currentIndex < currentDeck.length) {
+    if (isCompleted) {
+      setShowCelebration(true);
+    }
+  }, [isCompleted]);
+
+  // Card animation on change
+  useEffect(() => {
+    if (currentIndex < currentDeck.length && currentCard) {
       setIsAnimating(true);
       const timer = setTimeout(() => {
         setIsAnimating(false);
@@ -170,22 +93,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, currentDeck.length]);
-
-  const isCompleted = currentIndex >= currentDeck.length && (!thoroughLearning || ngCards.length === 0);
-  const currentCard = currentDeck[currentIndex];
-  const completedCount = Object.keys(completedCards).length;
-  const okCount = Object.values(completedCards).filter(
-    (v) => v === "ok"
-  ).length;
-  const ngCountValue = Object.values(completedCards).filter(
-    (v) => v === "ng"
-  ).length;
-
-  // 進捗率の計算（完了時は100%）
-  const progressPercentage = isCompleted
-    ? 100
-    : Math.round((completedCount / currentDeck.length) * 100);
+  }, [currentIndex, currentDeck.length, currentCard]);
 
   if (isCompleted) {
     return (
@@ -195,50 +103,50 @@ export function FlashcardDeck({ flashcards, className }: Props) {
         
         <div className={cn("flex flex-col items-center space-y-6", className)}>
           {/* 100%完了の進捗表示 */}
-        <div className="w-full max-w-md">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>
-              {currentDeck.length} / {currentDeck.length}
-            </span>
-            <span className="text-green-600 font-bold">100%</span>
+          <div className="w-full max-w-md">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>
+                {totalOriginalCards} / {totalOriginalCards}
+              </span>
+              <span className="text-green-600 font-bold">100%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="h-2 rounded-full bg-green-500"
+                style={{ width: "100%" }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="h-2 rounded-full bg-green-500"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
 
-        {/* 完了メッセージ */}
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
-          <div className="space-y-2">
-            <p className="text-lg text-gray-600">
-              {currentDeck.length}枚中{completedCount}枚完了
-            </p>
-            <div className="flex justify-center space-x-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {okCount}
+          {/* 完了メッセージ */}
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
+            <div className="space-y-2">
+              <p className="text-lg text-gray-600">
+                {totalOriginalCards}枚中{okCount + ngCountValue}枚完了
+              </p>
+              <div className="flex justify-center space-x-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {okCount}
+                  </div>
+                  <div className="text-sm text-gray-500">正解</div>
                 </div>
-                <div className="text-sm text-gray-500">正解</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{ngCountValue}</div>
-                <div className="text-sm text-gray-500">不正解</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">{ngCountValue}</div>
+                  <div className="text-sm text-gray-500">不正解</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <Button
-          onClick={handleReset}
-          size="lg"
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-        >
-          もう一度学習する
-        </Button>
+          <Button
+            onClick={handleReset}
+            size="lg"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+          >
+            もう一度学習する
+          </Button>
         </div>
       </>
     );
@@ -246,25 +154,23 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
   return (
     <div className={cn("flex flex-col items-center space-y-6", className)}>
-      {/* Progress - Hide progress bar in thorough learning mode */}
-      {!thoroughLearning && (
-        <div className="w-full max-w-md">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>
-              {currentIndex + 1} / {currentDeck.length}
-            </span>
-            <span>{progressPercentage}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${progressPercentage}%`,
-              }}
-            />
-          </div>
+      {/* Progress - Show progress bar in all modes */}
+      <div className="w-full max-w-md">
+        <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <span>
+            {currentIndex + 1} / {currentDeck.length}
+          </span>
+          <span>{progressPercentage}%</span>
         </div>
-      )}
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            style={{
+              width: `${progressPercentage}%`,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Card Stack */}
       <div className="relative">
@@ -333,6 +239,11 @@ export function FlashcardDeck({ flashcards, className }: Props) {
       <div className="text-center text-sm text-gray-500 max-w-md">
         <p>カードをクリックして表裏をめくることができます</p>
         <p>左右にドラッグするか、ボタンを押してOK/NGを選択してください</p>
+        {thoroughLearning && (
+          <p className="mt-2 text-blue-600 font-medium">
+            徹底学習モード: NGカードは再度出題されます
+          </p>
+        )}
       </div>
     </div>
   );
