@@ -64,3 +64,7 @@ export const updateSource = async (
     .where(eq(source.id, id))
     .returning();
 };
+
+export const deleteSource = async (db: DrizzleD1Database, id: string) => {
+  return await db.delete(source).where(eq(source.id, id)).returning();
+};

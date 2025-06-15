@@ -199,3 +199,15 @@ export type PostTitleRequestBody = z.infer<typeof postTitleRequestBody>;
  * タイトル生成 (POST) のレスポンスの型
  */
 export type PostTitleResponse = z.infer<typeof postTitleResponseSchema>;
+
+/**
+ * ソース削除 (DELETE) のレスポンススキーマ
+ */
+export const DeleteSourceResponseSchema = z.object({
+  message: z.string(),
+});
+
+/**
+ * ソース削除 (DELETE) のレスポンスの型
+ */
+export type DeleteSourceResponse = z.infer<typeof DeleteSourceResponseSchema>;

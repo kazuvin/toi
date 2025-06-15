@@ -1,4 +1,5 @@
 import {
+  DeleteSourceResponse,
   GetSourceDetailResponse,
   GetSourcesResponse,
   PutSourceBody,
@@ -32,4 +33,8 @@ export const createSourceFromUrl = async (body: PostSourceFromUrlBody) => {
 
 export const createSourceFromPdf = async (body: PostSourceFromPdfBody) => {
   return api.post<PostSourceDetailResponse>("/sources/pdf", body);
+};
+
+export const deleteSource = async (id: string) => {
+  return api.delete<DeleteSourceResponse>(`/sources/${id}`);
 };

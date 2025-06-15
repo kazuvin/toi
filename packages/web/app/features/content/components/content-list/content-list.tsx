@@ -2,6 +2,20 @@ import { Link } from "@remix-run/react";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { GetSourcesResponse } from "@toi/shared/src/schemas/source";
+import { useState } from "react";
+import { toast } from "sonner";
+import { mutate } from "swr";
+import { deleteSource } from "~/services/sources";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Trash2 } from "lucide-react";
 
 export type ContentListProps = {
   contents: GetSourcesResponse;
@@ -9,6 +23,22 @@ export type ContentListProps = {
 };
 
 export function ContentList({ contents, isLoading = false }: ContentListProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string, title: string) => {
+    setDeletingId(id);
+    try {
+      await deleteSource(id);
+      await mutate("/sources");
+      toast.success(`「${title || "無題"}」を削除しました`);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("削除に失敗しました");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -66,6 +96,38 @@ export function ContentList({ contents, isLoading = false }: ContentListProps) {
                 <Link to={`/content/${content.id}/flashcards`}>学習</Link>
               </Button>
             )}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  disabled={deletingId === content.id}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>コンテンツを削除</DialogTitle>
+                  <DialogDescription>
+                    「{content.title || "無題"}」を削除しますか？
+                    <br />
+                    この操作は取り消せません。関連するフラッシュカードも削除されます。
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="outline">キャンセル</Button>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => handleDelete(content.id, content.title || "")}
+                    disabled={deletingId === content.id}
+                  >
+                    {deletingId === content.id ? "削除中..." : "削除"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </Card>
       ))}
