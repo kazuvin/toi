@@ -260,13 +260,16 @@ describe("useFlashcardDeck", () => {
       expect(result.current.cardStats["2"]).toEqual({ okCount: 0, ngCount: 1 });
       expect(result.current.cardStats["3"]).toEqual({ okCount: 0, ngCount: 1 });
 
-      // Now OK the first card
+      // Current card should now be card 2 again after NG card 1
+      expect(result.current.currentCard?.id).toBe("2");
+
+      // Now OK the current card (card 2)
       act(() => {
         result.current.handleOk();
       });
 
-      expect(result.current.cardStats["1"]).toEqual({ okCount: 1, ngCount: 2 });
-      expect(result.current.cardStats["2"]).toEqual({ okCount: 0, ngCount: 1 });
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 2 });
+      expect(result.current.cardStats["2"]).toEqual({ okCount: 1, ngCount: 1 });
       expect(result.current.cardStats["3"]).toEqual({ okCount: 0, ngCount: 1 });
     });
 
@@ -442,7 +445,9 @@ describe("useFlashcardDeck", () => {
       });
       expect(result.current.currentDeck.length).toBe(2); // Card 2 removed
       expect(result.current.totalOkCards).toBe(1); // One card completed
-      expect(result.current.currentCard?.id).toBe("3");
+      // After removing card 2, deck is recreated from original flashcards minus removed cards
+      // Original: [1, 2, 3], removed: [2], remaining: [1, 3], so current card is 1
+      expect(result.current.currentCard?.id).toBe("1");
 
       // Verify card stats
       expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 1 });
