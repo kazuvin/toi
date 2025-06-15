@@ -24,6 +24,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   const [showCelebration, setShowCelebration] = useState(false);
   const [ngCards, setNgCards] = useState<string[]>([]);
   const [currentDeck, setCurrentDeck] = useState<GetSourceFlashcardsResponse["flashcards"]>([]);
+  const [isShuffled, setIsShuffled] = useState(false);
 
   // Create deck based on settings and current state
   const createDeck = useCallback(() => {
@@ -37,7 +38,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     return deck;
   }, [flashcards, thoroughLearning, ngCards]);
 
-  // Shuffle deck function (called only when shuffle setting changes)
+  // Shuffle deck function
   const shuffleDeck = useCallback((deck: GetSourceFlashcardsResponse["flashcards"]) => {
     const shuffled = [...deck];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -47,12 +48,26 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     return shuffled;
   }, []);
 
-  // Update current deck when dependencies change
+  // Update deck when base data changes (flashcards, thoroughLearning, ngCards)
   useEffect(() => {
     const newDeck = createDeck();
-    const finalDeck = shuffle ? shuffleDeck(newDeck) : newDeck;
-    setCurrentDeck(finalDeck);
-  }, [createDeck, shuffle, shuffleDeck]);
+    setCurrentDeck(newDeck);
+    setIsShuffled(false); // Reset shuffle status when deck changes
+  }, [createDeck]);
+
+  // Handle shuffle setting changes
+  useEffect(() => {
+    if (shuffle && !isShuffled) {
+      // Shuffle is turned on and deck is not shuffled yet
+      setCurrentDeck(prevDeck => shuffleDeck(prevDeck));
+      setIsShuffled(true);
+    } else if (!shuffle && isShuffled) {
+      // Shuffle is turned off, recreate deck in original order
+      const newDeck = createDeck();
+      setCurrentDeck(newDeck);
+      setIsShuffled(false);
+    }
+  }, [shuffle, isShuffled, shuffleDeck, createDeck]);
 
   // flashcardsが変更された時（異なるフラッシュカードに遷移した時）にstateを初期化
   useEffect(() => {
@@ -61,10 +76,8 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     setIsAnimating(false);
     setShowCelebration(false);
     setNgCards([]);
-    const newDeck = createDeck();
-    const finalDeck = shuffle ? shuffleDeck(newDeck) : newDeck;
-    setCurrentDeck(finalDeck);
-  }, [flashcards, createDeck, shuffle, shuffleDeck]);
+    setIsShuffled(false);
+  }, [flashcards]);
 
   function handleSwipeLeft() {
     const currentCard = currentDeck[currentIndex];
