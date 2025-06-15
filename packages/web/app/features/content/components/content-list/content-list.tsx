@@ -29,7 +29,7 @@ export function ContentList({ contents, isLoading = false }: ContentListProps) {
     setDeletingId(id);
     try {
       await deleteSource(id);
-      await mutate("/sources");
+      await mutate("/api/sources");
       toast.success(`「${title || "無題"}」を削除しました`);
     } catch (error) {
       console.error("Delete error:", error);

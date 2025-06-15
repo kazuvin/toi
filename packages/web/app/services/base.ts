@@ -70,8 +70,13 @@ async function baseFetch<T>(
   });
 
   if (!response.ok) {
-    const message = (await response.json()).message || response.statusText;
-    throw new Error(message);
+    try {
+      const errorData = await response.json();
+      const message = errorData.message || response.statusText;
+      throw new Error(message);
+    } catch (parseError) {
+      throw new Error(response.statusText || 'Request failed');
+    }
   }
 
   return response.json();
