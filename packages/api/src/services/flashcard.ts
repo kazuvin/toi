@@ -1,6 +1,6 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import { source, flashcard } from "@/db/schemas";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { callAnthropic } from "../utils/llm";
 import { Flashcard } from "@toi/shared/src/schemas/source";
 
@@ -83,5 +83,6 @@ export const getFlashcardsBySourceId = async (
   return await db
     .select()
     .from(flashcard)
-    .where(eq(flashcard.sourceId, sourceId));
+    .where(eq(flashcard.sourceId, sourceId))
+    .orderBy(desc(flashcard.createdAt));
 };
