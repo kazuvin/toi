@@ -2,7 +2,7 @@ import { useParams } from "@remix-run/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
-import { FlashcardDeck } from "~/features/flashcard/components";
+import { FlashcardDeck, FlashcardHeader } from "~/features/flashcard/components";
 import { Spinner } from "~/components/ui/spinner";
 import { useContentDetail } from "~/features/content";
 import { useEffect } from "react";
@@ -70,14 +70,14 @@ export default function ContentFlashcards() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          {contentDetail?.title ?? "タイトル未設定"}
-        </h1>
+    <div className="flex flex-col h-screen">
+      <FlashcardHeader title={contentDetail?.title ?? "タイトル未設定"} />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto px-4 py-8">
+          <FlashcardDeck flashcards={data.flashcards} />
+        </div>
       </div>
-
-      <FlashcardDeck flashcards={data.flashcards} />
     </div>
   );
 }
