@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
+import { Edit } from "lucide-react";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
 type FlashcardItem = GetSourceFlashcardsResponse["flashcards"][0];
@@ -8,6 +10,7 @@ type Props = {
   flashcard: FlashcardItem;
   onSwipeLeft: () => void;
   onSwipeRight: () => void;
+  onEdit?: () => void;
   className?: string;
 };
 
@@ -15,6 +18,7 @@ export function FlashcardItem({
   flashcard,
   onSwipeLeft,
   onSwipeRight,
+  onEdit,
   className,
 }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -33,6 +37,11 @@ export function FlashcardItem({
       return;
     }
     setIsFlipped(!isFlipped);
+  }
+
+  function handleEditClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    onEdit?.();
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -329,7 +338,8 @@ export function FlashcardItem({
             )}
 
             {/* 質問側のヘッダー */}
-            <div className="flex items-center justify-center mb-4 relative z-10">
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div className="w-8"></div>
               <div
                 className="flex items-center gap-2 px-3 py-1 bg-blue-100 rounded-full"
                 style={{ opacity: getOpacity() }}
@@ -349,6 +359,17 @@ export function FlashcardItem({
                 </svg>
                 <span className="text-blue-700 text-sm font-medium">質問</span>
               </div>
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEditClick}
+                  className="h-8 w-8 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                  style={{ opacity: getOpacity() * 0.6 }}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
             </div>
 
             <div className="flex-1 flex items-center justify-center">
@@ -414,7 +435,8 @@ export function FlashcardItem({
             )}
 
             {/* 回答側のヘッダー */}
-            <div className="flex items-center justify-center mb-4 relative z-10">
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div className="w-8"></div>
               <div
                 className="flex items-center gap-2 px-3 py-1 bg-green-100 rounded-full"
                 style={{ opacity: getOpacity() }}
@@ -434,6 +456,17 @@ export function FlashcardItem({
                 </svg>
                 <span className="text-green-700 text-sm font-medium">答え</span>
               </div>
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEditClick}
+                  className="h-8 w-8 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                  style={{ opacity: getOpacity() * 0.6 }}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
             </div>
 
             <div className="flex-1 flex items-center justify-center">

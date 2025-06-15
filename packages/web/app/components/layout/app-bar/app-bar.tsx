@@ -23,7 +23,7 @@ export default function AppBar({ className, ...props }: AppBarProps) {
         <Button size="sm" variant="default">
           ログイン
         </Button>
-        <Button size="sm" variant="accent">
+        <Button size="sm" variant="default">
           サインアップ
         </Button>
       </div>

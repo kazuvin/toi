@@ -86,3 +86,29 @@ export const getFlashcardsBySourceId = async (
     .where(eq(flashcard.sourceId, sourceId))
     .orderBy(desc(flashcard.createdAt));
 };
+
+/**
+ * フラッシュカードを更新する
+ */
+export const updateFlashcard = async (
+  db: DrizzleD1Database,
+  flashcardId: string,
+  question: string,
+  answer: string
+) => {
+  const [updatedFlashcard] = await db
+    .update(flashcard)
+    .set({
+      question,
+      answer,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(flashcard.id, flashcardId))
+    .returning();
+
+  if (!updatedFlashcard) {
+    throw new Error("Flashcard not found");
+  }
+
+  return updatedFlashcard;
+};

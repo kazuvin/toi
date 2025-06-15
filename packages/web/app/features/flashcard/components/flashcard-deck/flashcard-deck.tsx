@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { FlashcardItem } from "../flashcard-item";
+import { FlashcardEditDialog } from "../flashcard-edit-dialog";
 import { Confetti } from "../confetti";
 import { shuffleAtom, thoroughLearningAtom } from "~/state";
 import { useFlashcardDeck } from "../../hooks";
@@ -19,6 +20,8 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingCard, setEditingCard] = useState<GetSourceFlashcardsResponse["flashcards"][0] | null>(null);
 
   const {
     currentDeck,
@@ -73,6 +76,14 @@ export function FlashcardDeck({ flashcards, className }: Props) {
         setIsAnimating(false);
       }, 100);
     }, 200);
+  }
+
+  // Handle edit button click
+  function handleEditCard() {
+    if (currentCard) {
+      setEditingCard(currentCard);
+      setEditDialogOpen(true);
+    }
   }
 
   // Show celebration when completed
@@ -229,6 +240,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
               flashcard={currentCard}
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
+              onEdit={handleEditCard}
             />
           </div>
         )}
@@ -280,6 +292,18 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           </p>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      {editingCard && (
+        <FlashcardEditDialog
+          isOpen={editDialogOpen}
+          onClose={() => {
+            setEditDialogOpen(false);
+            setEditingCard(null);
+          }}
+          flashcard={editingCard}
+        />
+      )}
     </div>
   );
 }
