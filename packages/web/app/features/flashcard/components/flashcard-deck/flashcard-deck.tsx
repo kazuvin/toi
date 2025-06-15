@@ -82,9 +82,6 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     }
   }, [isCompleted]);
 
-  // Calculate total counts for display
-  const totalOkCount = Object.values(cardStats).reduce((sum, stats) => sum + stats.okCount, 0);
-  const totalNgCount = Object.values(cardStats).reduce((sum, stats) => sum + stats.ngCount, 0);
 
   if (isCompleted) {
     return (
@@ -112,22 +109,45 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           {/* 完了メッセージ */}
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
+          </div>
+
+          {/* カード毎のNG回数一覧 */}
+          <div className="w-full max-w-2xl space-y-3">
+            <h3 className="text-lg font-semibold text-gray-700 text-center mb-4">学習結果</h3>
             <div className="space-y-2">
-              <p className="text-lg text-gray-600">
-                {totalOriginalCards}枚中{totalOkCards}枚マスター
-              </p>
-              <div className="flex justify-center space-x-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {totalOkCount}
+              {flashcards.map((card) => {
+                const ngCount = cardStats[card.id]?.ngCount || 0;
+                const displayMessage = ngCount === 0 ? "完璧!" : `${ngCount}回間違い`;
+                const badgeColor = ngCount === 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+                
+                return (
+                  <div
+                    key={card.id}
+                    className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-gray-600 mb-1">Q:</div>
+                        <div className="text-gray-800 font-medium mb-2 line-clamp-2">
+                          {card.question}
+                        </div>
+                        <div className="text-sm text-gray-600 mb-1">A:</div>
+                        <div className="text-gray-700 text-sm line-clamp-2">
+                          {card.answer}
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className={cn(
+                          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                          badgeColor
+                        )}>
+                          {displayMessage}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">OK回数</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{totalNgCount}</div>
-                  <div className="text-sm text-gray-500">NG回数</div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 
