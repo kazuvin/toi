@@ -21,9 +21,9 @@ function MobileHeader({ className, onMenuClick, ...props }: MobileHeaderProps) {
         variant="outline"
         size="icon"
         onClick={onMenuClick}
-        className="p-2 size-12 bg-card/30 backdrop-blur-md"
+        className="p-1.5 size-10 bg-card/30 backdrop-blur-md"
       >
-        <Menu className="w-full" />
+        <Menu className="w-5 h-5" />
       </Button>
     </header>
   );

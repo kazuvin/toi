@@ -13,17 +13,19 @@ export function FlashcardHeader({ title }: FlashcardHeaderProps) {
 
   return (
     <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-800 truncate">
+      <div className="flex items-center justify-center relative md:justify-between">
+        {/* Title - centered on mobile, left-aligned on desktop with proper truncation */}
+        <h1 className="text-xl font-bold text-gray-800 truncate text-center md:text-left max-w-[calc(100%-4rem)] md:max-w-none">
           {title}
         </h1>
         
+        {/* Settings icon - fixed at top right */}
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 absolute right-0 top-1/2 transform -translate-y-1/2 md:relative md:right-auto md:top-auto md:transform-none"
               aria-label="学習設定"
             >
               <Settings className="h-4 w-4" />
