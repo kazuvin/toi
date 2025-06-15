@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import type { GetSourceFlashcardsResponse } from "@toi/shared/src/schemas/source";
 
-type FlashcardResult = "ok" | "ng";
+type CardStats = {
+  okCount: number;
+  ngCount: number;
+};
 
 type UseFlashcardDeckOptions = {
   flashcards: GetSourceFlashcardsResponse["flashcards"];
@@ -11,15 +14,12 @@ type UseFlashcardDeckOptions = {
 
 type UseFlashcardDeckReturn = {
   currentDeck: GetSourceFlashcardsResponse["flashcards"];
-  currentIndex: number;
   currentCard: GetSourceFlashcardsResponse["flashcards"][0] | undefined;
   isCompleted: boolean;
-  completedCards: Record<string, FlashcardResult>;
-  removedCards: Set<string>;
+  cardStats: Record<string, CardStats>;
   totalOriginalCards: number;
+  totalOkCards: number;
   progressPercentage: number;
-  okCount: number;
-  ngCount: number;
   handleOk: () => void;
   handleNg: () => void;
   reset: () => void;
@@ -31,10 +31,10 @@ export function useFlashcardDeck({
   thoroughLearning
 }: UseFlashcardDeckOptions): UseFlashcardDeckReturn {
   const [currentDeck, setCurrentDeck] = useState<GetSourceFlashcardsResponse["flashcards"]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [completedCards, setCompletedCards] = useState<Record<string, FlashcardResult>>({});
-  const [removedCards, setRemovedCards] = useState<Set<string>>(new Set());
-  const [isShuffled, setIsShuffled] = useState(false);
+  const [cardStats, setCardStats] = useState<Record<string, CardStats>>({});
+  const [removedCardIds, setRemovedCardIds] = useState<Set<string>>(new Set());
+  const [isInitialized, setIsInitialized] = useState(false);
+  
   const totalOriginalCards = flashcards.length;
 
   // Shuffle deck function
@@ -47,133 +47,112 @@ export function useFlashcardDeck({
     return shuffled;
   }, []);
 
-  // Create deck based on current state
-  const createDeck = useCallback(() => {
-    // In thorough learning mode, only include cards that are not removed
-    const availableCards = thoroughLearning 
-      ? flashcards.filter(card => !removedCards.has(card.id))
-      : flashcards;
-    
-    return [...availableCards];
-  }, [flashcards, thoroughLearning, removedCards]);
-
-  // Initialize deck when flashcards change or shuffle/thoroughLearning settings change
+  // Initialize or update deck
   useEffect(() => {
-    const newDeck = createDeck();
-    const prevDeckLength = currentDeck.length;
+    let deck: GetSourceFlashcardsResponse["flashcards"];
     
-    // Apply shuffle if enabled and not already shuffled
-    if (shuffle && !isShuffled) {
-      setCurrentDeck(shuffleDeck(newDeck));
-      setIsShuffled(true);
-    } else if (!shuffle && isShuffled) {
-      // Turn off shuffle, recreate in original order
-      setCurrentDeck(newDeck);
-      setIsShuffled(false);
+    if (thoroughLearning) {
+      // In thorough learning mode, only include cards that haven't been removed (OK'd)
+      deck = flashcards.filter(card => !removedCardIds.has(card.id));
     } else {
-      // Normal update
-      setCurrentDeck(newDeck);
+      // In normal mode, include all cards
+      deck = [...flashcards];
     }
 
-    // In thorough learning mode, adjust currentIndex if deck shrank due to removed cards
-    if (thoroughLearning && newDeck.length < prevDeckLength && currentIndex >= newDeck.length) {
-      setCurrentIndex(Math.max(0, newDeck.length - 1));
+    // Apply shuffle if enabled and this is initial setup or shuffle setting changed
+    if (shuffle && (!isInitialized || !isInitialized)) {
+      deck = shuffleDeck(deck);
     }
-  }, [createDeck, shuffle, isShuffled, shuffleDeck, thoroughLearning, currentIndex, currentDeck.length]);
 
-  // Reset when flashcards array changes (different content)
+    setCurrentDeck(deck);
+    
+    if (!isInitialized) {
+      setIsInitialized(true);
+    }
+  }, [flashcards, thoroughLearning, removedCardIds, shuffle, shuffleDeck, isInitialized]);
+
+  // Reset when flashcards change (different content)
   useEffect(() => {
-    setCurrentIndex(0);
-    setCompletedCards({});
-    setRemovedCards(new Set());
-    setIsShuffled(false);
+    setCardStats({});
+    setRemovedCardIds(new Set());
+    setIsInitialized(false);
   }, [flashcards]);
 
-  // Handle OK - remove card from deck
+  // Handle OK - remove card from deck (in thorough learning) or move to next
   const handleOk = useCallback(() => {
-    const currentCard = currentDeck[currentIndex];
+    const currentCard = currentDeck[0]; // Always use index 0
     if (!currentCard) return;
 
-    // Mark as completed
-    setCompletedCards(prev => ({
+    // Update card stats
+    setCardStats(prev => ({
       ...prev,
-      [currentCard.id]: "ok"
+      [currentCard.id]: {
+        okCount: (prev[currentCard.id]?.okCount || 0) + 1,
+        ngCount: prev[currentCard.id]?.ngCount || 0
+      }
     }));
 
     if (thoroughLearning) {
-      // In thorough learning mode, remove card from available cards
-      setRemovedCards(prev => new Set([...prev, currentCard.id]));
-      
-      // Stay at current index as deck will be updated
-      // If this was the last card, completion will be handled by the deck update
+      // In thorough learning mode, remove card from deck
+      setRemovedCardIds(prev => new Set([...prev, currentCard.id]));
     } else {
-      // In normal mode, just move to next card
-      setCurrentIndex(prev => prev + 1);
+      // In normal mode, remove card from current deck
+      setCurrentDeck(prev => prev.slice(1));
     }
-  }, [currentDeck, currentIndex, thoroughLearning]);
+  }, [currentDeck, thoroughLearning]);
 
-  // Handle NG - move card to end of deck (thoroughLearning) or just move to next
+  // Handle NG - move card to end of deck
   const handleNg = useCallback(() => {
-    const currentCard = currentDeck[currentIndex];
+    const currentCard = currentDeck[0]; // Always use index 0
     if (!currentCard) return;
 
-    // Mark as completed with NG
-    setCompletedCards(prev => ({
+    // Update card stats
+    setCardStats(prev => ({
       ...prev,
-      [currentCard.id]: "ng"
+      [currentCard.id]: {
+        okCount: prev[currentCard.id]?.okCount || 0,
+        ngCount: (prev[currentCard.id]?.ngCount || 0) + 1
+      }
     }));
 
-    if (thoroughLearning) {
-      // In thorough learning mode, move card to end of deck
-      setCurrentDeck(prev => {
-        const newDeck = [...prev];
-        const [removedCard] = newDeck.splice(currentIndex, 1);
-        newDeck.push(removedCard);
-        return newDeck;
-      });
-      
-      // Don't increment index as card was removed from current position
-    } else {
-      // In normal mode, just move to next card
-      setCurrentIndex(prev => prev + 1);
-    }
-  }, [currentDeck, currentIndex, thoroughLearning]);
+    // Move card to end of deck
+    setCurrentDeck(prev => {
+      const newDeck = [...prev];
+      const [movedCard] = newDeck.splice(0, 1);
+      newDeck.push(movedCard);
+      return newDeck;
+    });
+  }, [currentDeck]);
 
   // Reset function
   const reset = useCallback(() => {
-    setCurrentIndex(0);
-    setCompletedCards({});
-    setRemovedCards(new Set());
+    setCardStats({});
+    setRemovedCardIds(new Set());
+    setIsInitialized(false);
   }, []);
 
   // Calculate completion status
   const isCompleted = thoroughLearning 
-    ? removedCards.size === totalOriginalCards  // All cards removed (all OK)
-    : currentIndex >= currentDeck.length;       // Reached end of deck
+    ? removedCardIds.size === totalOriginalCards  // All cards removed (all OK)
+    : currentDeck.length === 0;                   // No cards left in deck
 
-  // Calculate current card
-  const currentCard = currentDeck[currentIndex];
+  // Calculate current card (always index 0)
+  const currentCard = currentDeck[0];
 
-  // Calculate progress - in thorough learning mode, based on removed cards
-  const progressPercentage = thoroughLearning
-    ? Math.round((removedCards.size / totalOriginalCards) * 100)
-    : Math.round((Object.keys(completedCards).length / totalOriginalCards) * 100);
+  // Calculate total OK cards
+  const totalOkCards = removedCardIds.size;
 
-  // Calculate counts
-  const okCount = Object.values(completedCards).filter(result => result === "ok").length;
-  const ngCount = Object.values(completedCards).filter(result => result === "ng").length;
+  // Calculate progress - based on OK cards out of total
+  const progressPercentage = Math.round((totalOkCards / totalOriginalCards) * 100);
 
   return {
     currentDeck,
-    currentIndex,
     currentCard,
     isCompleted,
-    completedCards,
-    removedCards,
+    cardStats,
     totalOriginalCards,
+    totalOkCards,
     progressPercentage,
-    okCount,
-    ngCount,
     handleOk,
     handleNg,
     reset

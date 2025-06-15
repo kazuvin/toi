@@ -22,13 +22,12 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
   const {
     currentDeck,
-    currentIndex,
     currentCard,
     isCompleted,
-    progressPercentage,
-    okCount,
-    ngCount: ngCountValue,
+    cardStats,
     totalOriginalCards,
+    totalOkCards,
+    progressPercentage,
     handleOk,
     handleNg,
     reset
@@ -83,17 +82,9 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     }
   }, [isCompleted]);
 
-  // Card animation on change
-  useEffect(() => {
-    if (currentIndex < currentDeck.length && currentCard) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [currentIndex, currentDeck.length, currentCard]);
+  // Calculate total counts for display
+  const totalOkCount = Object.values(cardStats).reduce((sum, stats) => sum + stats.okCount, 0);
+  const totalNgCount = Object.values(cardStats).reduce((sum, stats) => sum + stats.ngCount, 0);
 
   if (isCompleted) {
     return (
@@ -106,7 +97,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           <div className="w-full max-w-md">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>
-                {totalOriginalCards} / {totalOriginalCards}
+                {totalOkCards} / {totalOriginalCards} 完了
               </span>
               <span className="text-green-600 font-bold">100%</span>
             </div>
@@ -123,18 +114,18 @@ export function FlashcardDeck({ flashcards, className }: Props) {
             <h2 className="text-2xl font-bold text-gray-800">学習完了!</h2>
             <div className="space-y-2">
               <p className="text-lg text-gray-600">
-                {totalOriginalCards}枚中{okCount + ngCountValue}枚完了
+                {totalOriginalCards}枚中{totalOkCards}枚マスター
               </p>
               <div className="flex justify-center space-x-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
-                    {okCount}
+                    {totalOkCount}
                   </div>
-                  <div className="text-sm text-gray-500">正解</div>
+                  <div className="text-sm text-gray-500">OK回数</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{ngCountValue}</div>
-                  <div className="text-sm text-gray-500">不正解</div>
+                  <div className="text-2xl font-bold text-red-600">{totalNgCount}</div>
+                  <div className="text-sm text-gray-500">NG回数</div>
                 </div>
               </div>
             </div>
@@ -152,13 +143,18 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     );
   }
 
+  // Create a unique key for the current card to force re-render
+  const cardKey = currentCard 
+    ? `${currentCard.id}-${cardStats[currentCard.id]?.okCount || 0}-${cardStats[currentCard.id]?.ngCount || 0}-${currentDeck.length}`
+    : 'no-card';
+
   return (
     <div className={cn("flex flex-col items-center space-y-6", className)}>
-      {/* Progress - Show progress bar in all modes */}
+      {/* Progress - Show OK cards out of total */}
       <div className="w-full max-w-md">
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>
-            {currentIndex + 1} / {currentDeck.length}
+            {totalOkCards} / {totalOriginalCards} 完了
           </span>
           <span>{progressPercentage}%</span>
         </div>
@@ -170,13 +166,18 @@ export function FlashcardDeck({ flashcards, className }: Props) {
             }}
           />
         </div>
+        {currentDeck.length > 0 && (
+          <div className="text-xs text-gray-500 mt-1 text-center">
+            残り {currentDeck.length} 枚
+          </div>
+        )}
       </div>
 
       {/* Card Stack */}
       <div className="relative">
         {/* Background cards for stack effect */}
         {currentDeck
-          .slice(currentIndex + 1, currentIndex + 3)
+          .slice(1, 3)
           .map((_, index) => (
             <div
               key={index}
@@ -204,7 +205,7 @@ export function FlashcardDeck({ flashcards, className }: Props) {
             )}
           >
             <FlashcardItem
-              key={`${currentCard.id}-${currentIndex}`} // カードが変わったときにコンポーネントを再マウント
+              key={cardKey} // Force re-render when card stats change
               flashcard={currentCard}
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
@@ -212,6 +213,20 @@ export function FlashcardDeck({ flashcards, className }: Props) {
           </div>
         )}
       </div>
+
+      {/* Card Stats */}
+      {currentCard && (cardStats[currentCard.id]?.okCount > 0 || cardStats[currentCard.id]?.ngCount > 0) && (
+        <div className="flex space-x-4 text-sm">
+          <div className="flex items-center space-x-1">
+            <span className="text-green-600">OK:</span>
+            <span className="font-medium">{cardStats[currentCard.id]?.okCount || 0}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="text-red-600">NG:</span>
+            <span className="font-medium">{cardStats[currentCard.id]?.ngCount || 0}</span>
+          </div>
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="flex space-x-4">

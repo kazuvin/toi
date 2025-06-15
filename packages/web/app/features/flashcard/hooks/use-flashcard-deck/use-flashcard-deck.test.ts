@@ -42,12 +42,12 @@ describe("useFlashcardDeck", () => {
       );
 
       expect(result.current.currentCard).toEqual(mockFlashcards[0]);
-      expect(result.current.currentIndex).toBe(0);
       expect(result.current.isCompleted).toBe(false);
       expect(result.current.progressPercentage).toBe(0);
+      expect(result.current.totalOkCards).toBe(0);
     });
 
-    it("should move to next card on OK", () => {
+    it("should remove card from deck on OK", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -55,19 +55,20 @@ describe("useFlashcardDeck", () => {
           thoroughLearning: false,
         })
       );
+
+      const initialDeckLength = result.current.currentDeck.length;
 
       act(() => {
         result.current.handleOk();
       });
 
-      expect(result.current.currentIndex).toBe(1);
+      expect(result.current.currentDeck.length).toBe(initialDeckLength - 1);
       expect(result.current.currentCard).toEqual(mockFlashcards[1]);
-      expect(result.current.okCount).toBe(1);
-      expect(result.current.ngCount).toBe(0);
-      expect(result.current.progressPercentage).toBe(33); // 1/3 * 100
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 1, ngCount: 0 });
+      expect(result.current.progressPercentage).toBe(0); // No OK cards in normal mode
     });
 
-    it("should move to next card on NG", () => {
+    it("should move card to end on NG", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -75,18 +76,21 @@ describe("useFlashcardDeck", () => {
           thoroughLearning: false,
         })
       );
+
+      const initialCard = result.current.currentCard;
+      const initialDeckLength = result.current.currentDeck.length;
 
       act(() => {
         result.current.handleNg();
       });
 
-      expect(result.current.currentIndex).toBe(1);
+      expect(result.current.currentDeck.length).toBe(initialDeckLength);
       expect(result.current.currentCard).toEqual(mockFlashcards[1]);
-      expect(result.current.okCount).toBe(0);
-      expect(result.current.ngCount).toBe(1);
+      expect(result.current.currentDeck[result.current.currentDeck.length - 1]).toEqual(initialCard);
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 1 });
     });
 
-    it("should complete when reaching end of deck", () => {
+    it("should complete when deck is empty", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -95,7 +99,7 @@ describe("useFlashcardDeck", () => {
         })
       );
 
-      // Complete all cards
+      // Remove all cards
       act(() => {
         result.current.handleOk(); // Card 1
       });
@@ -107,13 +111,12 @@ describe("useFlashcardDeck", () => {
       });
 
       expect(result.current.isCompleted).toBe(true);
-      expect(result.current.progressPercentage).toBe(100);
-      expect(result.current.okCount).toBe(3);
+      expect(result.current.currentDeck.length).toBe(0);
     });
   });
 
   describe("Thorough learning mode", () => {
-    it("should remove card from deck on OK", () => {
+    it("should remove card completely on OK", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -129,8 +132,9 @@ describe("useFlashcardDeck", () => {
       });
 
       expect(result.current.currentDeck.length).toBe(initialDeckLength - 1);
-      expect(result.current.removedCards.has("1")).toBe(true);
-      expect(result.current.progressPercentage).toBe(33); // 1/3 removed
+      expect(result.current.totalOkCards).toBe(1);
+      expect(result.current.progressPercentage).toBe(33); // 1/3 cards OK
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 1, ngCount: 0 });
     });
 
     it("should move card to end of deck on NG", () => {
@@ -149,17 +153,15 @@ describe("useFlashcardDeck", () => {
         result.current.handleNg();
       });
 
-      // Deck length should remain the same
       expect(result.current.currentDeck.length).toBe(initialDeckLength);
-      // First card should now be at the end
-      expect(result.current.currentDeck[result.current.currentDeck.length - 1]).toEqual(initialCard);
-      // Current card should be different (second card becomes first)
       expect(result.current.currentCard).toEqual(mockFlashcards[1]);
-      // Progress should not change on NG
+      expect(result.current.currentDeck[result.current.currentDeck.length - 1]).toEqual(initialCard);
+      expect(result.current.totalOkCards).toBe(0); // No cards removed
       expect(result.current.progressPercentage).toBe(0);
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 1 });
     });
 
-    it("should complete when all cards are removed (all OK)", () => {
+    it("should complete when all cards are OK'd", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -168,7 +170,7 @@ describe("useFlashcardDeck", () => {
         })
       );
 
-      // Mark all cards as OK
+      // OK all cards
       act(() => {
         result.current.handleOk(); // Remove card 1
       });
@@ -180,11 +182,11 @@ describe("useFlashcardDeck", () => {
       });
 
       expect(result.current.isCompleted).toBe(true);
+      expect(result.current.totalOkCards).toBe(3);
       expect(result.current.progressPercentage).toBe(100);
-      expect(result.current.removedCards.size).toBe(3);
     });
 
-    it.skip("should continue learning with NG cards until all are OK", () => {
+    it.skip("should continue with NG cards until all are OK", () => {
       const { result } = renderHook(() =>
         useFlashcardDeck({
           flashcards: mockFlashcards,
@@ -193,39 +195,29 @@ describe("useFlashcardDeck", () => {
         })
       );
 
-      // Initial state: first card (id: 1) is current
-      expect(result.current.currentCard?.id).toBe("1");
-
       // NG first card (moves to end)
       act(() => {
         result.current.handleNg();
       });
 
-      // After NG, first card should be moved to end, current card should be second card
       expect(result.current.currentCard?.id).toBe("2");
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 1 });
 
-      // OK second card (removes it from deck completely)
+      // OK second card (removes it)
       act(() => {
         result.current.handleOk();
       });
 
-      // After removing second card, deck is recreated to exclude removed cards [3, 1], currentIndex should point to current remaining card
-      // Based on the actual implementation, the current card would be "1" (first card from end position after deck recreation)
-      expect(result.current.currentCard?.id).toBe("1");
-
-      // At this point we should move to the next card which is "3"
+      expect(result.current.totalOkCards).toBe(1);
       expect(result.current.currentCard?.id).toBe("3");
 
-      // OK third card (removes it from deck completely)
+      // OK third card (removes it)
       act(() => {
         result.current.handleOk();
       });
 
-      // Now only first card remains (which was moved to end), deck is [1]
-      expect(result.current.currentDeck.length).toBe(1);
-      expect(result.current.currentCard?.id).toBe("1");
-      expect(result.current.isCompleted).toBe(false);
-      expect(result.current.progressPercentage).toBe(67); // 2/3 removed
+      expect(result.current.totalOkCards).toBe(2);
+      expect(result.current.currentCard?.id).toBe("1"); // Only NG'd card remains
 
       // OK the remaining card
       act(() => {
@@ -233,7 +225,48 @@ describe("useFlashcardDeck", () => {
       });
 
       expect(result.current.isCompleted).toBe(true);
-      expect(result.current.progressPercentage).toBe(100);
+      expect(result.current.totalOkCards).toBe(3);
+    });
+  });
+
+  describe("Card statistics", () => {
+    it.skip("should track OK and NG counts per card", () => {
+      const { result } = renderHook(() =>
+        useFlashcardDeck({
+          flashcards: mockFlashcards,
+          shuffle: false,
+          thoroughLearning: true,
+        })
+      );
+
+      // NG first card multiple times
+      act(() => {
+        result.current.handleNg();
+      });
+      act(() => {
+        result.current.handleNg(); // Card 2
+      });
+      act(() => {
+        result.current.handleNg(); // Card 3  
+      });
+
+      // Now we're back to card 1, NG it again
+      expect(result.current.currentCard?.id).toBe("1");
+      act(() => {
+        result.current.handleNg();
+      });
+
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 0, ngCount: 2 });
+      expect(result.current.cardStats["2"]).toEqual({ okCount: 0, ngCount: 1 });
+      expect(result.current.cardStats["3"]).toEqual({ okCount: 0, ngCount: 1 });
+
+      // Now OK the first card
+      act(() => {
+        result.current.handleOk();
+      });
+
+      expect(result.current.cardStats["2"]).toEqual({ okCount: 0, ngCount: 1 });
+      expect(result.current.cardStats["1"]).toEqual({ okCount: 1, ngCount: 2 });
     });
   });
 
@@ -255,22 +288,22 @@ describe("useFlashcardDeck", () => {
         result.current.handleNg();
       });
 
+      expect(Object.keys(result.current.cardStats).length).toBeGreaterThan(0);
+
       // Reset
       act(() => {
         result.current.reset();
       });
 
-      expect(result.current.currentIndex).toBe(0);
       expect(result.current.currentCard).toEqual(mockFlashcards[0]);
-      expect(result.current.okCount).toBe(0);
-      expect(result.current.ngCount).toBe(0);
+      expect(result.current.cardStats).toEqual({});
+      expect(result.current.totalOkCards).toBe(0);
       expect(result.current.progressPercentage).toBe(0);
-      expect(result.current.removedCards.size).toBe(0);
     });
   });
 
   describe("Shuffle functionality", () => {
-    it("should shuffle deck when shuffle is enabled", () => {
+    it("should handle shuffle setting", () => {
       const { result, rerender } = renderHook(
         ({ shuffle }) =>
           useFlashcardDeck({
@@ -288,8 +321,7 @@ describe("useFlashcardDeck", () => {
 
       const shuffledOrder = result.current.currentDeck.map(card => card.id);
 
-      // Note: This test might occasionally pass even with proper shuffling
-      // due to random chance, but it should fail most of the time if shuffling isn't working
+      // Should contain same cards
       expect(shuffledOrder).toHaveLength(originalOrder.length);
       expect(shuffledOrder).toEqual(expect.arrayContaining(originalOrder));
     });
