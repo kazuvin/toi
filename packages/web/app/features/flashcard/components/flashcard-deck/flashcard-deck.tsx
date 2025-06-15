@@ -18,6 +18,14 @@ export function FlashcardDeck({ flashcards, className }: Props) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
+  // flashcardsが変更された時（異なるフラッシュカードに遷移した時）にstateを初期化
+  useEffect(() => {
+    setCurrentIndex(0);
+    setCompletedCards({});
+    setIsAnimating(false);
+    setShowCelebration(false);
+  }, [flashcards]);
+
   function handleSwipeLeft() {
     const currentCard = flashcards[currentIndex];
     if (currentCard) {
