@@ -1,10 +1,10 @@
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { source } from "@/db/schemas";
 import { PostSourceBody, PutSourceBody } from "@toi/shared/src/schemas/source";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export const getSources = async (db: DrizzleD1Database) => {
-  return await db.select().from(source);
+  return await db.select().from(source).orderBy(desc(source.createdAt));
 };
 
 export const getSourceById = async (db: DrizzleD1Database, id: string) => {
