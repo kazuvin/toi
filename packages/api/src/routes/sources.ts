@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { Context } from "hono";
 import {
   createSource,
+  deleteSource,
   getSourceById,
   getSources,
   updateSource,
@@ -10,6 +11,7 @@ import {
 import { getFlashcardsBySourceId } from "@/services/flashcard";
 import { zValidator } from "@hono/zod-validator";
 import {
+  DeleteSourceResponse,
   GetSourceDetailResponse,
   PostSourceBodySchema,
   PostSourceDetailResponse,
@@ -120,6 +122,27 @@ app
       type: result[0].type,
       createdAt: result[0].createdAt ?? "",
       updatedAt: result[0].updatedAt ?? "",
+    };
+
+    return c.json(response);
+  })
+  .delete("/:id", async (c) => {
+    const id = c.req.param("id");
+    const db = drizzle(c.env.DB);
+
+    const existingSource = await getSourceById(db, id);
+    if (existingSource.length === 0) {
+      return c.json({ message: "Source not found" }, 404);
+    }
+
+    const result = await deleteSource(db, id);
+
+    if (result.length === 0) {
+      return c.json({ message: "Failed to delete source" }, 500);
+    }
+
+    const response: DeleteSourceResponse = {
+      message: "Source deleted successfully",
     };
 
     return c.json(response);
