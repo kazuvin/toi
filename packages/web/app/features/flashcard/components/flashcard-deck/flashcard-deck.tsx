@@ -53,7 +53,12 @@ export function FlashcardDeck({ flashcards, className }: Props) {
     const newDeck = createDeck();
     setCurrentDeck(newDeck);
     setIsShuffled(false); // Reset shuffle status when deck changes
-  }, [createDeck]);
+    
+    // If we're switching to NG cards review and currentIndex is at the end, reset it
+    if (thoroughLearning && ngCards.length > 0 && currentIndex >= currentDeck.length) {
+      setCurrentIndex(0);
+    }
+  }, [createDeck, thoroughLearning, ngCards.length, currentIndex, currentDeck.length]);
 
   // Handle shuffle setting changes
   useEffect(() => {
@@ -123,9 +128,9 @@ export function FlashcardDeck({ flashcards, className }: Props) {
       if (isLastCard) {
         // If thorough learning is enabled and there are NG cards to review
         if (thoroughLearning && ngCards.length > 0) {
-          // Reset to start reviewing NG cards
-          setCurrentIndex(0);
-          // Deck will be updated automatically by createDeck memo
+          // Wait for the deck to be updated before resetting index
+          // This will be handled by the useEffect that watches ngCards changes
+          setCurrentIndex(currentDeck.length); // Temporarily move to end
         } else {
           // Complete the learning session
           setCurrentIndex(currentDeck.length);
@@ -241,23 +246,25 @@ export function FlashcardDeck({ flashcards, className }: Props) {
 
   return (
     <div className={cn("flex flex-col items-center space-y-6", className)}>
-      {/* Progress */}
-      <div className="w-full max-w-md">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>
-            {currentIndex + 1} / {currentDeck.length}
-          </span>
-          <span>{progressPercentage}%</span>
+      {/* Progress - Hide progress bar in thorough learning mode */}
+      {!thoroughLearning && (
+        <div className="w-full max-w-md">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>
+              {currentIndex + 1} / {currentDeck.length}
+            </span>
+            <span>{progressPercentage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${progressPercentage}%`,
+              }}
+            />
+          </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-            style={{
-              width: `${progressPercentage}%`,
-            }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Card Stack */}
       <div className="relative">
