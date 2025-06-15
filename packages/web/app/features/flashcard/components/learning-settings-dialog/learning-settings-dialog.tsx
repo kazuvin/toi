@@ -12,7 +12,10 @@ export function LearningSettingsDialog() {
     <div className="space-y-6 py-4">
       {/* Shuffle Setting */}
       <div className="space-y-2">
-        <div className="flex items-center space-x-3">
+        <Label 
+          htmlFor="shuffle-dialog" 
+          className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+        >
           <Checkbox
             id="shuffle-dialog"
             checked={shuffle}
@@ -20,19 +23,22 @@ export function LearningSettingsDialog() {
           />
           <div className="flex items-center space-x-2">
             <Shuffle className="h-4 w-4 text-gray-500" />
-            <Label htmlFor="shuffle-dialog" className="text-sm font-medium cursor-pointer">
+            <span className="text-sm font-medium">
               シャッフル
-            </Label>
+            </span>
           </div>
-        </div>
-        <p className="text-xs text-gray-500 ml-7">
+        </Label>
+        <p className="text-xs text-gray-500 ml-9">
           カードの表示順をランダムにします
         </p>
       </div>
 
       {/* Thorough Learning Setting */}
       <div className="space-y-2">
-        <div className="flex items-center space-x-3">
+        <Label 
+          htmlFor="thorough-learning-dialog" 
+          className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+        >
           <Checkbox
             id="thorough-learning-dialog"
             checked={thoroughLearning}
@@ -40,12 +46,12 @@ export function LearningSettingsDialog() {
           />
           <div className="flex items-center space-x-2">
             <RotateCcw className="h-4 w-4 text-gray-500" />
-            <Label htmlFor="thorough-learning-dialog" className="text-sm font-medium cursor-pointer">
+            <span className="text-sm font-medium">
               徹底学習
-            </Label>
+            </span>
           </div>
-        </div>
-        <p className="text-xs text-gray-500 ml-7">
+        </Label>
+        <p className="text-xs text-gray-500 ml-9">
           「NG」のカードを「OK」になるまで繰り返します
         </p>
       </div>

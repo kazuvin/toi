@@ -58,6 +58,34 @@ npm run test:api:coverage    # Run API tests with coverage
 
 ## Development Workflow
 
+### Issue対応フロー
+**IMPORTANT**: Issue対応時は必ず以下の手順に従うこと：
+
+1. **mainブランチから新しい作業ブランチを作成**
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b fix/issue-description  # バグ修正の場合
+   git checkout -b feat/issue-description # 新機能の場合
+   ```
+
+2. **Issue対応を実装**
+   - バグ修正、新機能実装、改善などを行う
+   - コードの品質を保つため lint と typecheck を実行
+
+3. **変更をコミット**
+   - 適切なコミットメッセージで変更をコミット
+   - 必要に応じて複数のコミットに分割
+
+4. **PRを作成**
+   ```bash
+   git push origin branch-name
+   gh pr create --title "PR title" --body "PR description"
+   ```
+
+5. **レビュー後にマージ**
+   - PRがレビュー・承認されたらmainブランチにマージ
+
 ### API Development
 1. Define schemas in `/packages/shared/src/schemas/`
 2. Create route in `/packages/api/src/routes/`
