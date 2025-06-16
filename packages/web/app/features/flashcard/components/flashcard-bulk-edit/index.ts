@@ -1,0 +1,1 @@
+export { FlashcardBulkEdit, type FlashcardBulkEditData } from "./flashcard-bulk-edit";

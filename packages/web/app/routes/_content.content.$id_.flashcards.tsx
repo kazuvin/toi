@@ -1,11 +1,13 @@
-import { useParams } from "@remix-run/react";
+import { useParams, Link } from "@remix-run/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
 import { FlashcardDeck, FlashcardHeader } from "~/features/flashcard/components";
 import { Spinner } from "~/components/ui/spinner";
+import { Button } from "~/components/ui/button";
 import { useContentDetail } from "~/features/content";
 import { useEffect } from "react";
+import { Edit } from "lucide-react";
 
 export default function ContentFlashcards() {
   const { id } = useParams();
@@ -75,6 +77,14 @@ export default function ContentFlashcards() {
       
       <div className="flex-1 overflow-auto">
         <div className="container mx-auto px-4 py-8">
+          <div className="mb-4 flex justify-end">
+            <Button asChild variant="outline">
+              <Link to={`/content/${id}/flashcards/edit`}>
+                <Edit className="w-4 h-4 mr-2" />
+                一括編集
+              </Link>
+            </Button>
+          </div>
           <FlashcardDeck flashcards={data.flashcards} />
         </div>
       </div>

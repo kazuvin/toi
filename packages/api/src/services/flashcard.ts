@@ -112,3 +112,33 @@ export const updateFlashcard = async (
 
   return updatedFlashcard;
 };
+
+/**
+ * フラッシュカードを一括更新する
+ */
+export const updateFlashcardsBulk = async (
+  db: DrizzleD1Database,
+  sourceId: string,
+  flashcards: Array<{ id: string; question: string; answer: string }>
+) => {
+  const updatedFlashcards = [];
+  const now = new Date().toISOString();
+
+  for (const card of flashcards) {
+    const [updatedFlashcard] = await db
+      .update(flashcard)
+      .set({
+        question: card.question,
+        answer: card.answer,
+        updatedAt: now,
+      })
+      .where(eq(flashcard.id, card.id))
+      .returning();
+
+    if (updatedFlashcard) {
+      updatedFlashcards.push(updatedFlashcard);
+    }
+  }
+
+  return updatedFlashcards;
+};

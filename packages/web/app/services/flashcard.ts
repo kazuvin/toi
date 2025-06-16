@@ -4,6 +4,8 @@ import {
   GetSourceFlashcardsResponse,
   PutFlashcardRequestBody,
   PutFlashcardResponse,
+  PutFlashcardsBulkRequestBody,
+  PutFlashcardsBulkResponse,
 } from "@toi/shared/src/schemas/source";
 import { api } from "./base";
 
@@ -24,6 +26,16 @@ export const updateFlashcard = async (
 ) => {
   return api.put<PutFlashcardResponse>(
     `/sources/${sourceId}/flashcards/${flashcardId}`,
+    body
+  );
+};
+
+export const updateFlashcardsBulk = async (
+  sourceId: string,
+  body: PutFlashcardsBulkRequestBody
+) => {
+  return api.put<PutFlashcardsBulkResponse>(
+    `/sources/${sourceId}/flashcards/bulk`,
     body
   );
 };

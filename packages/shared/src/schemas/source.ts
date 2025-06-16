@@ -241,3 +241,43 @@ export const DeleteSourceResponseSchema = z.object({
  * ソース削除 (DELETE) のレスポンスの型
  */
 export type DeleteSourceResponse = z.infer<typeof DeleteSourceResponseSchema>;
+
+/**
+ * フラッシュカード一括更新 (PUT) のリクエストボディスキーマ
+ */
+export const putFlashcardsBulkRequestBodySchema = z.object({
+  flashcards: z.array(
+    z.object({
+      id: z.string(),
+      question: z.string(),
+      answer: z.string(),
+    })
+  ),
+});
+
+/**
+ * フラッシュカード一括更新 (PUT) のレスポンススキーマ
+ */
+export const putFlashcardsBulkResponseSchema = z.object({
+  updatedCount: z.number(),
+  flashcards: z.array(
+    z.object({
+      id: z.string(),
+      sourceId: z.string(),
+      question: z.string(),
+      answer: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+  ),
+});
+
+/**
+ * フラッシュカード一括更新 (PUT) のリクエストボディの型
+ */
+export type PutFlashcardsBulkRequestBody = z.infer<typeof putFlashcardsBulkRequestBodySchema>;
+
+/**
+ * フラッシュカード一括更新 (PUT) のレスポンスの型
+ */
+export type PutFlashcardsBulkResponse = z.infer<typeof putFlashcardsBulkResponseSchema>;
