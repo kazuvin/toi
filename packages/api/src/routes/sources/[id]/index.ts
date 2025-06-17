@@ -6,7 +6,7 @@ import flashcardsBulk from "./flashcards/bulk";
 const app = new Hono();
 
 app.route("/flashcards", flashcards);
-app.route("/flashcards/:flashcardId", flashcardId);
 app.route("/flashcards/bulk", flashcardsBulk);
+app.route("/flashcards/:flashcardId", flashcardId);
 
 export default app;

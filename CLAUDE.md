@@ -79,12 +79,14 @@ npm run test:api:coverage    # Run API tests with coverage
 
 4. **PRを作成**
    ```bash
-   git push origin branch-name
+   git push origin branch-name -u
    gh pr create --title "PR title" --body "PR description"
    ```
 
 5. **レビュー後にマージ**
    - PRがレビュー・承認されたらmainブランチにマージ
+
+**IMPORTANT**: Issue対応は必ずmainブランチから作業ブランチを作成してPR作成まで一連の流れで完了させること
 
 ### API Development
 1. Define schemas in `/packages/shared/src/schemas/`
