@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 
 export type ContentListProps = {
   contents: GetSourcesResponse;
@@ -94,6 +94,14 @@ export function ContentList({ contents, isLoading = false }: ContentListProps) {
             {content.isFlashcardGenerated && (
               <Button size="sm" asChild className="flex-1">
                 <Link to={`/content/${content.id}/flashcards`}>学習</Link>
+              </Button>
+            )}
+            {content.isFlashcardGenerated && (
+              <Button variant="outline" size="sm" asChild className="flex-1">
+                <Link to={`/content/${content.id}/flashcards/edit`}>
+                  <Edit className="w-4 h-4 mr-1" />
+                  一括編集
+                </Link>
               </Button>
             )}
             <Dialog>
