@@ -87,55 +87,59 @@ export function ContentList({ contents, isLoading = false }: ContentListProps) {
               )}
             </div>
           </div>
-          <div className="mt-4 flex gap-2">
-            <Button variant="outline" size="sm" asChild className="flex-1">
-              <Link to={`/content/${content.id}`}>詳細</Link>
-            </Button>
-            {content.isFlashcardGenerated && (
-              <Button size="sm" asChild className="flex-1">
-                <Link to={`/content/${content.id}/flashcards`}>学習</Link>
-              </Button>
-            )}
-            {content.isFlashcardGenerated && (
+          <div className="mt-4 space-y-2">
+            <div className="flex gap-2">
               <Button variant="outline" size="sm" asChild className="flex-1">
-                <Link to={`/content/${content.id}/flashcards/edit`}>
-                  <Edit className="w-4 h-4 mr-1" />
-                  一括編集
-                </Link>
+                <Link to={`/content/${content.id}`}>詳細</Link>
               </Button>
-            )}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  disabled={deletingId === content.id}
-                >
-                  <Trash2 className="h-4 w-4" />
+              {content.isFlashcardGenerated && (
+                <Button size="sm" asChild className="flex-1">
+                  <Link to={`/content/${content.id}/flashcards`}>学習</Link>
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>コンテンツを削除</DialogTitle>
-                  <DialogDescription>
-                    「{content.title || "無題"}」を削除しますか？
-                    <br />
-                    この操作は取り消せません。関連するフラッシュカードも削除されます。
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline">キャンセル</Button>
+              )}
+              <Dialog>
+                <DialogTrigger asChild>
                   <Button 
-                    variant="destructive"
-                    onClick={() => handleDelete(content.id, content.title || "")}
+                    variant="outline" 
+                    size="sm" 
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     disabled={deletingId === content.id}
                   >
-                    {deletingId === content.id ? "削除中..." : "削除"}
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>コンテンツを削除</DialogTitle>
+                    <DialogDescription>
+                      「{content.title || "無題"}」を削除しますか？
+                      <br />
+                      この操作は取り消せません。関連するフラッシュカードも削除されます。
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline">キャンセル</Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => handleDelete(content.id, content.title || "")}
+                      disabled={deletingId === content.id}
+                    >
+                      {deletingId === content.id ? "削除中..." : "削除"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            {content.isFlashcardGenerated && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" asChild className="flex-1">
+                  <Link to={`/content/${content.id}/flashcards/edit`}>
+                    <Edit className="w-4 h-4 mr-1" />
+                    一括編集
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       ))}
