@@ -1,6 +1,6 @@
 import { cn } from "~/lib/utils";
 import { ComponentPropsWithoutRef, useEffect, useState } from "react";
-import { User, X, MessageSquare, PlusCircle } from "lucide-react";
+import { User, X, MessageSquare, PlusCircle, Shield } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
 import useSWR from "swr";
@@ -172,7 +172,14 @@ function MobileSidebar({
           </div>
         </div>
 
-        <div className="mt-auto flex-shrink-0">
+        <div className="mt-auto flex-shrink-0 space-y-2">
+          <SidebarItem
+            renderIcon={() => <Shield className="size-4" />}
+            to="/privacy"
+            onClick={onClose}
+          >
+            プライバシーポリシー
+          </SidebarItem>
           <AccountInfo onAccountClick={() => setIsAccountDialogOpen(true)} />
         </div>
       </aside>
