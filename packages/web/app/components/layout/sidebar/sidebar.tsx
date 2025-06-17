@@ -6,6 +6,7 @@ import {
   ChevronRight,
   MessageSquare,
   PlusCircle,
+  Shield,
 } from "lucide-react";
 import { Link } from "@remix-run/react";
 import useSWR from "swr";
@@ -173,11 +174,20 @@ export default function Sidebar({ className, ...props }: SidebarProps) {
         ))}
       </div>
 
-      <div className="flex items-center mt-auto h-16">
-        <AccountInfo 
-          isOpen={isOpen} 
-          onAccountClick={() => setIsAccountDialogOpen(true)}
-        />
+      <div className="mt-auto space-y-2">
+        <SidebarItem
+          isOpen={isOpen}
+          renderIcon={() => <Shield className="size-4" />}
+          to="/privacy"
+        >
+          プライバシーポリシー
+        </SidebarItem>
+        <div className="flex items-center h-16">
+          <AccountInfo 
+            isOpen={isOpen} 
+            onAccountClick={() => setIsAccountDialogOpen(true)}
+          />
+        </div>
       </div>
 
       <AccountInfoDialog
