@@ -13,6 +13,7 @@ import { zValidator } from "@hono/zod-validator";
 import {
   DeleteSourceResponse,
   GetSourceDetailResponse,
+  GetSourcesResponse,
   PostSourceBodySchema,
   PostSourceDetailResponse,
   PutSourceBodySchema,
@@ -58,8 +59,26 @@ app.onError(errorHandler);
 app
   .get("/", async (c) => {
     const db = drizzle(c.env.DB);
-    const result = await getSources(db);
-    return c.json(result);
+    const sources = await getSources(db);
+    
+    // 各ソースに対してフラッシュカードの存在確認
+    const sourcesWithFlashcardStatus: GetSourcesResponse = await Promise.all(
+      sources.map(async (source) => {
+        const flashcards = await getFlashcardsBySourceId(db, source.id);
+        return {
+          id: source.id,
+          uid: source.uid ?? undefined,
+          title: source.title ?? undefined,
+          content: source.content,
+          type: source.type,
+          isFlashcardGenerated: flashcards.length > 0,
+          createdAt: source.createdAt ?? "",
+          updatedAt: source.updatedAt ?? "",
+        };
+      })
+    );
+    
+    return c.json(sourcesWithFlashcardStatus);
   })
   .get("/:id", async (c) => {
     const db = drizzle(c.env.DB);
@@ -96,6 +115,7 @@ app
       title: result[0].title ?? undefined,
       content: result[0].content,
       type: result[0].type,
+      isFlashcardGenerated: false, // 新規作成時はフラッシュカードは未生成
       createdAt: result[0].createdAt ?? "",
       updatedAt: result[0].updatedAt ?? "",
     };
@@ -113,6 +133,9 @@ app
     }
 
     const result = await updateSource(db, id, json);
+    
+    // 更新後のフラッシュカード存在状況を確認
+    const flashcards = await getFlashcardsBySourceId(db, id);
 
     const response: PutSourceDetailResponse = {
       id: result[0].id,
@@ -120,6 +143,7 @@ app
       title: result[0].title ?? undefined,
       content: result[0].content,
       type: result[0].type,
+      isFlashcardGenerated: flashcards.length > 0,
       createdAt: result[0].createdAt ?? "",
       updatedAt: result[0].updatedAt ?? "",
     };
