@@ -1,4 +1,4 @@
-import { useParams, Link } from "@remix-run/react";
+import { useParams, Link, type MetaFunction } from "@remix-run/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { getFlashcardsBySourceId } from "~/services/flashcard";
@@ -8,6 +8,16 @@ import { Button } from "~/components/ui/button";
 import { useContentDetail } from "~/features/content";
 import { useEffect } from "react";
 import { Edit } from "lucide-react";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "フラッシュカード - Toi" },
+    { 
+      name: "description", 
+      content: "AIが生成したフラッシュカードで学習しましょう。効率的な暗記学習をサポートします。"
+    }
+  ];
+};
 
 export default function ContentFlashcards() {
   const { id } = useParams();

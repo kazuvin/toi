@@ -1,8 +1,18 @@
-import { Link } from "@remix-run/react";
+import { Link, type MetaFunction } from "@remix-run/react";
 import useSWR from "swr";
 import { ContentList } from "~/features/content/components/content-list";
 import { getSources } from "~/services/sources";
 import { Button } from "~/components/ui/button";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "コンテンツ一覧 - Toi" },
+    { 
+      name: "description", 
+      content: "作成したコンテンツとフラッシュカードを一覧表示します。学習の進捗を管理できます。"
+    }
+  ];
+};
 
 export default function ContentsPage() {
   const { data: sources = [], isLoading } = useSWR("/api/sources", getSources);
