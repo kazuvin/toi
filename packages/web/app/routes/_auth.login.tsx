@@ -1,4 +1,5 @@
 import { type MetaFunction } from "@remix-run/react";
+import { getCanonicalUrl } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -6,6 +7,11 @@ export const meta: MetaFunction = () => {
     { 
       name: "description", 
       content: "ToiにログインしてAIフラッシュカード作成機能をご利用ください。"
+    },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: getCanonicalUrl("/login")
     }
   ];
 };

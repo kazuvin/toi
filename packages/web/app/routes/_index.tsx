@@ -1,4 +1,5 @@
 import { redirect, type MetaFunction } from "@remix-run/react";
+import { getCanonicalUrl } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,7 +11,7 @@ export const meta: MetaFunction = () => {
     {
       tagName: "link",
       rel: "canonical",
-      href: "https://toi.app"
+      href: getCanonicalUrl("/")
     }
   ];
 };

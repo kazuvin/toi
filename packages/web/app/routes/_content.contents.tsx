@@ -1,4 +1,5 @@
 import { Link, type MetaFunction } from "@remix-run/react";
+import { getCanonicalUrl } from "~/utils";
 import useSWR from "swr";
 import { ContentList } from "~/features/content/components/content-list";
 import { getSources } from "~/services/sources";
@@ -10,6 +11,11 @@ export const meta: MetaFunction = () => {
     { 
       name: "description", 
       content: "作成したコンテンツとフラッシュカードを一覧表示します。学習の進捗を管理できます。"
+    },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: getCanonicalUrl("/contents")
     }
   ];
 };

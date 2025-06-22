@@ -1,10 +1,16 @@
 import { type MetaFunction } from "@remix-run/node";
 import { PrivacyPolicy } from "~/features/legal/components/privacy-policy";
+import { getCanonicalUrl } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [
     { title: "プライバシーポリシー - Toi" },
     { name: "description", content: "Toiのプライバシーポリシーです" },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: getCanonicalUrl("/privacy")
+    }
   ];
 };
 
