@@ -1,4 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
+import { getCanonicalUrl } from "~/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   InputMethodSelector,
@@ -15,7 +16,18 @@ import {
 } from "~/features/content/hooks";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Toi" }, { name: "description", content: "Toi" }];
+  return [
+    { title: "新しいコンテンツを作成 - Toi" },
+    { 
+      name: "description", 
+      content: "テキストやPDFからフラッシュカードを作成します。AI が効率的な学習カードを自動生成します。"
+    },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: getCanonicalUrl("/new")
+    }
+  ];
 };
 
 export default function ContentNew() {
