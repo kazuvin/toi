@@ -85,7 +85,7 @@ export default function ContentFlashcards() {
     <div className="flex flex-col h-screen">
       <FlashcardHeader title={contentDetail?.title ?? "タイトル未設定"} />
       
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto pt-[60px] md:pt-0">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4 flex justify-end">
             <Button asChild variant="outline">
