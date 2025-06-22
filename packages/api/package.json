@@ -5,7 +5,9 @@
     "deploy": "wrangler deploy --minify",
     "generate": "drizzle-kit generate",
     "local:migration": "wrangler d1 migrations apply prod-toi --local",
-    "remote:migration": "wrangler d1 migrations apply prod-toi --remote"
+    "remote:migration": "wrangler d1 migrations apply prod-toi --remote",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",
@@ -19,7 +21,9 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",
+    "@types/node": "^22.10.5",
     "drizzle-kit": "^0.30.6",
+    "vitest": "^3.0.0",
     "wrangler": "^4.4.0"
   }
 }
